@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Painel – FazFestas</title>
+
+  <!-- Fontes / Ícones -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    type="text/css"
+  />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Toast -->
+  <link rel="stylesheet" href="../compartilhado/toast.css" type="text/css"/>
+  <script src="../compartilhado/toast.js"></script>
+
+  <!-- CSS do Painel -->
+  <link rel="stylesheet" href="painel.css"/>
+</head>
+<body>
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- HEADER -->
+  <header class="panel-header">
+    <div class="header-left">
+      <h1 class="logo-text">fazFesta</h1>
+      <h2 class="greeting">Olá, <span id="user-name" class="username">Usuário</span>!</h2>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="btn-notifications">
+        <i class="fa-regular fa-bell"></i><span class="badge">3</span>
+      </button>
+      <button class="icon-btn" id="btn-profile">
+        <i class="fa-solid fa-user-circle"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- BANNER SLIDER -->
+  <section class="banner-slider">
+    <div class="slide active">
+      <img src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2FBanner%201.png?alt=media&token=e28b0e27-bb1d-459f-a793-4e5014bf357a" alt="Banner 1"/>
+    </div>
+    <div class="slide">
+      <img src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2FBanner%202.png?alt=media&token=923a38ed-1420-4655-b80b-42922012523a" alt="Banner 2"/>
+    </div>
+    <div class="slide">
+      <img src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2FBanner%203.jpg?alt=media&token=b96d1cd4-ede3-4665-8eff-4a3c4bc43a0b" alt="Banner 3"/>
+    </div>
+    <div class="dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+    </div>
+  </section>
+
+  <!-- ESTATÍSTICAS -->
+  <section class="stats-section">
+    <article class="stat-card">
+      <i class="fa-solid fa-calendar-days"></i>
+      <div><span class="stat-number">0</span><span class="stat-label">Festas</span></div>
+    </article>
+    <article class="stat-card">
+      <i class="fa-solid fa-user-group"></i>
+      <div><span class="stat-number">0</span><span class="stat-label">Convidados</span></div>
+    </article>
+    <article class="stat-card">
+      <i class="fa-solid fa-list-check"></i>
+      <div><span class="stat-number">0</span><span class="stat-label">Itens Pendentes</span></div>
+    </article>
+    <article class="stat-card">
+      <i class="fa-solid fa-handshake-angle"></i>
+      <div><span class="stat-number">0</span><span class="stat-label">Parceiros</span></div>
+    </article>
+  </section>
+
+  <!-- PRÓXIMO EVENTO + GRÁFICO -->
+  <div class="overview-container">
+    <section class="upcoming-section">
+      <h2>Meu Próximo Evento</h2>
+      <div class="upcoming-card">
+        <img src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Ffestas%202.png?alt=media&token=e7d5cd94-9a88-4357-89eb-ac9c32e813a6" alt="Aniversário do Lucas"/>
+        <div class="upcoming-info">
+          <h3 class="event-title">Aniversário do Lucas</h3>
+          <p class="event-date">20 de maio de 2025</p>
+        </div>
+        <i class="fa-solid fa-rotate-right spinner-icon"></i>
+      </div>
+    </section>
+
+    <section class="chart-section">
+      <h2>Visão Geral</h2>
+      <canvas id="overviewChart"></canvas>
+    </section>
+  </div>
+
+  <!-- AÇÕES RÁPIDAS -->
+  <section class="quick-actions">
+    <h2>Ações Rápidas</h2>
+    <div class="action-carousel">
+      <article class="action-card">
+        <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Ffestas.png?alt=media&token=13a787c0-01b8-4187-ad2c-caa09ede8437" alt="Festas"/>
+        <span>Festas</span>
+      </article>
+      <article class="action-card">
+        <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fchecklist.png?alt=media&token=afc771ed-9a65-4ff6-bad6-a607b68e38f5" alt="Checklist"/>
+        <span>Checklist</span>
+      </article>
+      <article class="action-card">
+        <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fstat-parceiros.png?alt=media&token=b6444339-e5d4-4f4c-96c3-2c8cb16112d7" alt="Parceiros"/>
+        <span>Parceiros</span>
+      </article>
+      <article class="action-card">
+        <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fcard%C3%A1pios.png?alt=media&token=7eb2fc57-7fe2-4f9b-b053-236683a38ae3" alt="Cardápios"/>
+        <span>Cardápios</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- BOTÃO FLUTUANTE -->
+  <button id="fab"><i class="fa-solid fa-plus"></i></button>
+
+  <!-- MENU INFERIOR e SCRIPTS -->
+  <script src="../compartilhado/menu-inferior.js"></script>
+  <script src="painel.js"></script>
+  <script src="../compartilhado/script.js" type="module"></script>
+</body>
+</html>

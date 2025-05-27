@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Nova Página – FazFestas</title>
+
+  <!-- Fontes / Ícones -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    type="text/css"
+  />
+
+  <!-- Toast (opcional) -->
+  <link rel="stylesheet" href="../compartilhado/toast.css" type="text/css"/>
+  <script src="../compartilhado/toast.js"></script>
+
+  <!-- CSS Template -->
+  <link rel="stylesheet" href="festas.css"/>
+</head>
+<body>
+  <!-- Container para toasts -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- HEADER FIXO -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="logo-text">fazFesta</h1>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="btn-profile">
+        <i class="fa-solid fa-user-circle"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="app-main">
+    <!-- Aqui vai todo conteúdo específico da página -->
+  </main>
+
+  <!-- MENU INFERIOR -->
+  <nav id="bottom-nav">
+    <ul class="nav-list">
+      <li class="nav-item active">
+        <i class="fa-solid fa-house"></i>
+        <span>Início</span>
+      </li>
+      <li class="nav-item">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>Festas</span>
+      </li>
+      <li class="nav-item">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Checklist</span>
+      </li>
+      <li class="nav-item">
+        <i class="fa-solid fa-handshake-angle"></i>
+        <span>Parceiros</span>
+      </li>
+      <li class="nav-item">
+        <i class="fa-solid fa-utensils"></i>
+        <span>Cardápios</span>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- SCRIPTS GERAIS -->
+  <script src="../compartilhado/menu-inferior.js"></script>
+  <script src="../compartilhado/script.js" type="module"></script>
+</body>
+</html>

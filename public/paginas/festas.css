@@ -1,0 +1,126 @@
+:root {
+  --clr-primary: #9F7AEA;
+  --clr-secondary: #6B46C1;
+  --bg-light: rgba(255,255,255,0.8);
+  --bg-white: #fff;
+  --text-dark: #2D3748;
+  --text-light: #718096;
+  --radius: 1rem;
+  --transition: .3s ease;
+  --nav-height: 4.5rem;
+  --gutter: 1rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #D8B4F6, #FBCFE8) fixed;
+  background-size: cover;
+  padding: 0 var(--gutter) var(--nav-height);
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-light);
+  backdrop-filter: blur(8px);
+  width: calc(100% + 2 * var(--gutter));
+  margin: 0 calc(-1 * var(--gutter));
+  padding: var(--gutter) calc(2 * var(--gutter));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.header-left .logo-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--clr-primary);
+}
+
+.header-right .icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.header-right .icon-btn:hover {
+  color: var(--clr-primary);
+}
+
+.app-main {
+  width: 100%;
+  max-width: 1200px;
+  margin: var(--gutter) auto;
+  padding-bottom: var(--gutter);
+}
+
+/* Exemplo de container para seção */
+.section-title {
+  font-size: 1.25rem;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
+
+/* MENU INFERIOR */
+#bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-white);
+  border-top: 1px solid #E2E8F0;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.nav-list {
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+  justify-content: space-around;
+}
+
+.nav-item {
+  flex: 1;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.nav-item i {
+  font-size: 1.25rem;
+}
+
+.nav-item.active,
+.nav-item:hover {
+  color: var(--clr-primary);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .app-main {
+    padding: 0;
+  }
+}
