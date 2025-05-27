@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 69.72 22.46">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fcdac2;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        fill: #fad9d7;
+      }
+
+      .cls-4, .cls-5 {
+        fill: #373463;
+      }
+
+      .cls-5 {
+        font-family: RobotoFlex-Bold, 'Roboto Flex';
+        font-size: 2.65px;
+        font-variation-settings: 'opsz' 14, 'wght' 700, 'GRAD' 0, 'wdth' 100, 'slnt' 0, 'XOPQ' 96, 'YOPQ' 79, 'XTRA' 468, 'YTUC' 712, 'YTLC' 514, 'YTAS' 750, 'YTDE' -203, 'YTFI' 738;
+      }
+
+      .cls-5, .cls-6 {
+        font-weight: 700;
+      }
+
+      .cls-7 {
+        fill: #d6cfe8;
+      }
+
+      .cls-8 {
+        fill: #f9c9c4;
+      }
+
+      .cls-9 {
+        fill: #f3965b;
+      }
+
+      .cls-10 {
+        letter-spacing: .13em;
+      }
+
+      .cls-6 {
+        font-family: ExoItalic-ExtraBold, Exo;
+        font-size: 8.74px;
+        font-variation-settings: 'wght' 800;
+      }
+
+      .cls-11 {
+        letter-spacing: .13em;
+      }
+
+      .cls-12 {
+        fill: #f9cbc5;
+      }
+
+      .cls-13 {
+        letter-spacing: .14em;
+      }
+
+      .cls-14 {
+        fill: #f39660;
+      }
+
+      .cls-15 {
+        letter-spacing: .14em;
+      }
+
+      .cls-16 {
+        fill: #efa776;
+      }
+
+      .cls-17, .cls-18 {
+        fill: none;
+      }
+
+      .cls-18 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-19 {
+        fill: #9d99a5;
+      }
+
+      .cls-20 {
+        letter-spacing: .15em;
+      }
+
+      .cls-21 {
+        fill: #f3955d;
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-17" x="4.43" y="5.52" width="15.81" height="15.91" rx="3.69" ry="3.69"/>
+    </clipPath>
+  </defs>
+  <g id="Camada_1-2" data-name="Camada 1">
+    <g id="Camada_1-2" data-name="Camada 1-2">
+      <g>
+        <g>
+          <g>
+            <rect class="cls-2" x="3.48" y="4.55" width="17.71" height="17.85" rx="3.76" ry="3.76"/>
+            <path class="cls-19" d="m17.43,22.46H7.24c-2.11,0-3.83-1.72-3.83-3.83v-10.33c0-2.11,1.72-3.83,3.83-3.83h10.19c2.11,0,3.83,1.72,3.83,3.83v10.33c0,2.11-1.72,3.83-3.83,3.83h0ZM7.24,4.62c-2.04,0-3.69,1.66-3.69,3.69v10.33c0,2.04,1.66,3.69,3.69,3.69h10.19c2.04,0,3.69-1.66,3.69-3.69v-10.33c0-2.04-1.66-3.69-3.69-3.69H7.24Z"/>
+          </g>
+          <g class="cls-18">
+            <g>
+              <path class="cls-19" d="m9.38,3.17l-.33,10.3s-2.74-2.1-5.4-1.24c0,0-1.68-4.71.79-7.08,2.48-2.37,4.94-1.98,4.94-1.98h0Z"/>
+              <polygon class="cls-8" points="2.27 10.79 2.27 14.64 7.78 17.25 13.08 17.66 16.25 11.92 2.27 10.79"/>
+              <path class="cls-21" d="m1.65,12.55l2.6.67s3.14,5.72,11.49.64c0,0,.44,7.85-8.59,7.92l-6.54-1.31.89-7.92h.15Z"/>
+              <polygon class="cls-7" points="17.41 9.9 9.83 21.62 22.7 21.79 21.69 14.98 20.76 9.22 17.41 9.9"/>
+              <path class="cls-1" d="m21.23,8.82l-7.08,6.16-5.1-1.5.33-10.67s11.17-2.21,11.44.86c.27,3.07.41,5.15.41,5.15h0Z"/>
+            </g>
+          </g>
+          <g>
+            <path class="cls-2" d="m9.52,2.97h0c.82,0,1.49.67,1.49,1.49v1.57c0,.82-.67,1.49-1.49,1.49h0c-.82,0-1.49-.67-1.49-1.49v-1.57c0-.82.67-1.49,1.49-1.49Z"/>
+            <path class="cls-2" d="m15.11,2.97h0c.82,0,1.49.67,1.49,1.49v1.57c0,.82-.67,1.49-1.49,1.49h0c-.82,0-1.49-.67-1.49-1.49v-1.57c0-.82.67-1.49,1.49-1.49Z"/>
+            <path class="cls-14" d="m9.47,3.7h0c.39,0,.71.32.71.71v1.56c0,.39-.32.71-.71.71h0c-.39,0-.71-.32-.71-.71v-1.56c0-.39.32-.71.71-.71Z"/>
+            <path class="cls-14" d="m15.11,3.7h0c.39,0,.71.32.71.71v1.56c0,.39-.32.71-.71.71h0c-.39,0-.71-.32-.71-.71v-1.56c0-.39.32-.71.71-.71Z"/>
+          </g>
+          <path class="cls-3" d="m21.53,12.11s2.06.47,2.82-.26c0,0,.54.59.23.91s-1.22,1.01-3.21.46l.16-1.12h0Z"/>
+          <path class="cls-2" d="m6.32,9.04h12.09v7.18c0,1.83-1.48,3.31-3.31,3.31h-5.47c-1.83,0-3.31-1.48-3.31-3.31v-7.18h0Z"/>
+          <g>
+            <rect class="cls-4" x="8.95" y="11.07" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="8.95" y="13.82" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="8.95" y="16.57" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="11.68" y="11.07" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="11.68" y="13.82" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="11.68" y="16.57" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="14.4" y="11.07" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="14.4" y="13.82" width="1.51" height="1.33"/>
+            <rect class="cls-4" x="14.4" y="16.57" width="1.51" height="1.33"/>
+          </g>
+          <path class="cls-1" d="m.39,15.04s1.45.95,2.63-.27v1.37s-1.12,1.14-2.63.11v-1.22h0Z"/>
+          <path class="cls-12" d="m2.45,12.55l.51-.81s-1.57-.53-2.13-1.26c0,0-1.36-.37-.6.96,0,0,.83,1.07,2.22,1.11Z"/>
+          <polygon class="cls-9" points="1.71 6.88 2.83 6.12 2.83 7.75 1.71 6.88"/>
+          <path class="cls-4" d="m1.86,5.18s1.54-1.05,2.76,0l.27-1.01s-.03-.21-.24-.3-1.95-.67-2.94.14l.15,1.17h0Z"/>
+          <path class="cls-16" d="m11.95,0l.8.76s-1.49,1.3-1.16,2.36c0,0-1.08,0-1.14-.94,0,0-.09-1.19,1.5-2.17h0Z"/>
+          <path class="cls-12" d="m18.46,3.12l.47,1.06s1.7-1.06,2.73-1.06v-1.09s-.56-.47-3.2,1.09h0Z"/>
+          <path class="cls-4" d="m21.19,4.59l-.37.86s1.54.47,2.06,2.17c0,0,.9-.56,1.3-.53,0,0-.36-1.63-2.99-2.5h0Z"/>
+          <path class="cls-21" d="m23.95,8.72l-.05,1.52s.52-.91,1.35-.76c0,0-.59-.78-1.31-.76Z"/>
+        </g>
+        <text class="cls-5" transform="translate(27.98 17.87)"><tspan class="cls-13" x="0" y="0">P</tspan><tspan class="cls-20" x="2.04" y="0">L</tspan><tspan class="cls-13" x="3.91" y="0">ANE</tspan><tspan class="cls-10" x="10.31" y="0">J</tspan><tspan class="cls-13" x="12.19" y="0">ADOR DE EVE</tspan><tspan class="cls-11" x="33.18" y="0">NT</tspan><tspan class="cls-15" x="37.39" y="0">OS</tspan></text>
+        <text class="cls-6" transform="translate(27.63 13.56)"><tspan class="cls-4" x="0" y="0">Faz</tspan><tspan class="cls-14" x="14.35" y="0">Festas</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 86.78 86.78">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-2 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <circle class="cls-1" cx="43.39" cy="43.39" r="43.39"/>
+    </clipPath>
+  </defs>
+  <g id="Camada_1-2" data-name="Camada 1">
+    <g class="cls-2">
+      <image width="4928" height="3712" transform="translate(-50.51 -.41) scale(.04)" xlink:href="../../../../../../../../Downloads/Homem caucasiano atraente usando maquete de camiseta branca vazia em branco para modelo de design.jpg"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,140 @@
+/* RESET & LAYOUT GERAL */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #D8B4F6 0%, #FBCFE8 100%);
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* CONTAINER PRINCIPAL */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 1rem;
+}
+
+/* ILUSTRAÇÃO: CENTRALIZA E AUMENTA */
+.illustration {
+  display: flex;
+  justify-content: center;    /* centraliza horizontalmente */
+  margin-bottom: 1.5rem;      /* espaçamento maior abaixo */
+}
+.illustration img {
+  width: 280px;    /* tamanho base maior */
+  max-width: 80%;  /* não ultrapassa 80% da largura da tela */
+  height: auto;    /* mantém proporção */
+}
+
+/* TÍTULO DE CADA TELA */
+.auth-container h1 {
+  font-size: 1.75rem;
+  color: #6B46C1;
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+}
+
+/* CARTÃO BRANCO */
+.auth-card {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* INPUTS COM ÍCONES */
+.input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.input-group i {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: #A0AEC0;
+  font-size: 1rem;
+}
+.input-group input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: none;
+  border-radius: 1.5rem;
+  background: #F7FAFC;
+  font-size: 1rem;
+  color: #2D3748;
+}
+.input-group input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+}
+
+/* ÍCONE DE MOSTRAR/OCULTAR SENHA */
+.password-group {
+  position: relative;
+}
+.password-group .password-toggle {
+  position: absolute;
+  top: 50%;
+  left: auto;       /* anula o left padrão */
+  right: 1rem;      /* posiciona no canto direito */
+  transform: translateY(-50%);
+  color: #A0AEC0;
+  cursor: pointer;
+}
+
+/* BOTÃO PRINCIPAL */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 1.5rem;
+  background: #9F7AEA;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* LINKS ABAIXO DO BOTÃO */
+.auth-links {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+.auth-links a {
+  display: block;
+  margin: 0.5rem 0;
+  color: #9F7AEA;
+}
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
+  .auth-container h1 {
+    font-size: 1.5rem;
+  }
+}

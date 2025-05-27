@@ -1,0 +1,124 @@
+#home {
+    display: flex;
+    min-height: calc(100vh - 111px);
+    max-height: 768px;
+    position: relative;
+    
+
+}
+
+#cta {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 5%;
+    z-index: 4;
+    
+}
+
+#cta .tiltle {
+    font-size: 3rem;
+    color: #1d1d1d;
+}
+
+#cta .tiltle .text-simples {
+    color: #373463;
+    
+}
+
+#cta .tiltle .text-divertida {
+    color: #f39660;
+    
+}
+
+#cta .description {
+    font-size: 1.2rem;
+
+}
+#cta_buttons {
+    display: flex;
+    gap: 24px;
+   
+}
+
+#cta_buttons a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+#banner {
+    display: flex;
+    align-items: start;
+    justify-content: end;
+    width: 60%;
+    z-index: 3;
+    
+}
+
+#banner img {
+    height: 100%;
+    width: fit-content;   
+    padding-right: 10rem;
+  
+}
+
+#banner_mobile {
+    display: none;
+}
+
+
+.shape {
+    background-color: #6870b3;
+    width: 52%;
+    height: 100%;
+    position: absolute;
+    z-index: 2;
+    border-radius: 40% 30% 0% 20%;
+    top: 0;
+    right: 0;
+
+
+}
+
+
+
+
+@media  screen and (max-width: 1170px) {
+    #home {
+        min-height: 100%; /* Ajuste a altura conforme o conteúdo */
+        padding: 20px 0; /* Adicione um pouco de padding vertical */
+        display: flex;
+        flex-direction: column; /* Coloca cta e banner em coluna */
+        align-items: center; /* Centraliza horizontalmente */
+        margin: 0px 20px 0px 20px;
+       
+    }
+
+    #cta {
+        width: 100%;
+        text-align: center;
+        align-items: center;
+    }
+
+    #banner {
+        display: none; /* Esconde a versão desktop */
+    }
+
+    #banner_mobile {
+        display: block; /* Exibe a versão mobile */
+        width: 100%; /* Ajuste a largura conforme necessário */
+        height: auto; /* Mantém a proporção */
+        margin-top: 20px; /* Espaço entre o texto e a imagem */
+    }
+
+    #banner_mobile img {
+        width: 100%; /* A imagem ocupa a largura do container #banner_mobile */
+        height: auto;
+        display: block; /* Garante que a imagem seja um bloco */
+    }
+
+    #home .shape {
+        display: none; /* Esconde o shape */
+    }
+}

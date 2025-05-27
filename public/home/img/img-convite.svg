@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103.73 85.43">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1d1d1b;
+        font-family: RobotoFlex-Bold, 'Roboto Flex';
+        font-size: 26.62px;
+        font-variation-settings: 'opsz' 14, 'wght' 700, 'GRAD' 0, 'wdth' 100, 'slnt' 0, 'XOPQ' 96, 'YOPQ' 79, 'XTRA' 468, 'YTUC' 712, 'YTLC' 514, 'YTAS' 750, 'YTDE' -203, 'YTFI' 738;
+        font-weight: 700;
+      }
+
+      .cls-2 {
+        fill: #768d96;
+      }
+
+      .cls-3 {
+        fill: #fdfafc;
+      }
+
+      .cls-4 {
+        fill: #f18674;
+      }
+    </style>
+  </defs>
+  <g id="Camada_1-2" data-name="Camada 1">
+    <g>
+      <g>
+        <polygon class="cls-2" points="28.9 48.44 0 24.72 0 75.35 28.9 48.44"/>
+        <path class="cls-2" d="m61.2,48.25l28.96,28.32c.04-.37.07-.74.07-1.11V22.05l-29.03,26.2Z"/>
+        <path class="cls-2" d="m58.18,50.98l-7.72,6.96c-.57.54-2.25,1.88-4.73,1.97-.09,0-.17,0-.25,0-2.54,0-4.27-1.32-4.96-1.95l-8.44-6.93L1.06,79.91c1.64,3.27,5,5.51,8.91,5.51h70.3c3.54,0,6.64-1.85,8.41-4.63l-30.49-29.82Z"/>
+        <path class="cls-3" d="m45.59,55.85c1.1-.04,1.84-.64,2.12-.89l41.81-37.74c-1.47-3.67-5.05-6.26-9.25-6.26H9.97C4.93,10.96.78,14.7.11,19.54l43.14,35.42c.23.22,1.11.95,2.34.89Z"/>
+      </g>
+      <g>
+        <circle class="cls-4" cx="83.62" cy="20.11" r="20.11"/>
+        <text class="cls-1" transform="translate(77.45 29.84)"><tspan x="0" y="0">1</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

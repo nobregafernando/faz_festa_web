@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar – FazFestas</title>
+  <!-- Fontes e ícones -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"
+  />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="illustration">
+      <img src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/autenticacao%2Fentrar.png?alt=media&token=35ae9b5e-6256-49a7-ad7e-f4cd036e0cd2" alt="Ilustração Entrar">
+    </div>
+    <h1>Entrar</h1>
+    <div class="auth-card">
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input id="login-email" type="email" placeholder="Digite seu e-mail" required>
+      </div>
+      <div class="input-group password-group">
+        <i class="fa-solid fa-lock"></i>
+        <input id="login-pass" type="password" placeholder="Digite sua senha" required>
+        <i class="fa-solid fa-eye password-toggle"></i>
+      </div>
+      <button id="btn-login" class="btn">Entrar</button>
+      <div class="auth-links">
+        <a href="recuperar_senha.html">Esqueci minha senha</a>
+        <a href="criar_conta.html">Não tem uma conta? Criar agora</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toggle visibilidade da senha -->
+  <script>
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const input = toggle.parentElement.querySelector('input');
+        if (input.type === 'password') {
+          input.type = 'text';
+          toggle.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          input.type = 'password';
+          toggle.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    });
+  </script>
+
+  <!-- Integração Supabase + Firebase -->
+  <script type="module" src="script.js"></script>
+  <script src="../compartilhado/toast.js"></script>
+  <script type="module" src="../compartilhado/script.js"></script>
+</body>
+</html>
