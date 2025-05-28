@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Nova Página – FazFestas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Festas – FazFestas</title>
 
   <!-- Fontes / Ícones -->
   <link
@@ -12,66 +12,238 @@
   />
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
   />
 
-  <!-- Toast (opcional) -->
-  <link rel="stylesheet" href="../compartilhado/toast.css" type="text/css"/>
-  <script src="../compartilhado/toast.js"></script>
+  <!-- Toast / Flatpickr -->
+  <style>
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+    }
+  </style>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
 
-  <!-- CSS Template -->
-  <link rel="stylesheet" href="festas.css"/>
+  <!-- CSS local -->
+  <link rel="stylesheet" href="festas.css" />
 </head>
 <body>
-  <!-- Container para toasts -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- HEADER FIXO -->
+  <!-- HEADER -->
   <header class="app-header">
-    <div class="header-left">
-      <h1 class="logo-text">fazFesta</h1>
-    </div>
-    <div class="header-right">
-      <button class="icon-btn" id="btn-profile">
-        <i class="fa-solid fa-user-circle"></i>
-      </button>
-    </div>
+    <h1 class="logo-text">fazFesta</h1>
+    <button class="icon-btn" id="btn-profile">
+      <i class="fa-solid fa-user-circle"></i>
+    </button>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- Ações rápidas -->
+  <section class="quick-actions">
+    <button id="btn-new" class="action-btn">
+      <i class="fa-solid fa-plus"></i> Nova festa
+    </button>
+    <button id="btn-filter" class="action-btn">
+      <i class="fa-solid fa-filter"></i> Filtrar
+    </button>
+  </section>
+
+  <!-- Lista de festas -->
   <main class="app-main">
-    <!-- Aqui vai todo conteúdo específico da página -->
+    <section id="festas-container" class="festas-grid"></section>
   </main>
 
-  <!-- MENU INFERIOR -->
-  <nav id="bottom-nav">
-    <ul class="nav-list">
-      <li class="nav-item active">
-        <i class="fa-solid fa-house"></i>
-        <span>Início</span>
-      </li>
-      <li class="nav-item">
-        <i class="fa-solid fa-calendar-days"></i>
-        <span>Festas</span>
-      </li>
-      <li class="nav-item">
-        <i class="fa-solid fa-list-check"></i>
-        <span>Checklist</span>
-      </li>
-      <li class="nav-item">
-        <i class="fa-solid fa-handshake-angle"></i>
-        <span>Parceiros</span>
-      </li>
-      <li class="nav-item">
-        <i class="fa-solid fa-utensils"></i>
-        <span>Cardápios</span>
-      </li>
-    </ul>
-  </nav>
+  <!-- FILTRO -->
+  <div id="filter-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>Filtrar festas</h2>
+      <form id="filter-form">
+        <label>
+          Data inicial
+          <input type="text" id="flt-data-start" placeholder="DD/MM/AAAA" />
+        </label>
+        <label>
+          Data final
+          <input type="text" id="flt-data-end" placeholder="DD/MM/AAAA" />
+        </label>
+        <label>
+          Tipo de festa
+          <select id="flt-tipo"><option value="">Todos</option></select>
+        </label>
+        <div class="overlay-actions">
+          <button type="button" id="flt-clear">Limpar</button>
+          <button type="submit">Aplicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <!-- SCRIPTS GERAIS -->
+  <!-- WIZARD (criar/editar) -->
+  <div id="wizard-overlay" class="overlay hidden">
+    <div class="wizard">
+      <header class="wizard-header">
+        <h2 id="wizard-title">Nova festa</h2>
+        <button id="wizard-close" class="icon-btn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <form id="wizard-form">
+        <!-- passo 0 -->
+        <div class="wizard-step active" data-step="0">
+          <label>
+            Nome
+            <input type="text" id="fld-nome" required />
+          </label>
+          <div class="wizard-nav">
+            <button type="button" class="btn-next">Próximo</button>
+          </div>
+        </div>
+
+        <!-- passo 1 -->
+        <div class="wizard-step" data-step="1">
+          <label>
+            Data
+            <input
+              type="text"
+              id="fld-data"
+              required
+              placeholder="DD/MM/AAAA"
+            />
+          </label>
+          <label>
+            Duração
+            <select id="fld-duracao" required>
+              <option value="">Escolha…</option>
+              <option value="4">4h</option>
+              <option value="5">5h</option>
+              <option value="6">6h</option>
+              <option value="7">7h</option>
+            </select>
+          </label>
+          <label>
+            Convidados
+            <input
+              type="number"
+              id="fld-convidados"
+              min="1"
+              required
+            />
+          </label>
+          <div class="wizard-nav">
+            <button type="button" class="btn-back">Voltar</button>
+            <button type="button" class="btn-next">Próximo</button>
+          </div>
+        </div>
+
+        <!-- passo 2 -->
+        <div class="wizard-step" data-step="2">
+          <label>
+            Tipo de festa
+            <select id="fld-tipo-evento" required>
+              <option value="">Selecione...</option>
+            </select>
+          </label>
+          <div class="wizard-nav">
+            <button type="button" class="btn-back">Voltar</button>
+            <button type="button" class="btn-next">Próximo</button>
+          </div>
+        </div>
+
+        <!-- passo 3: categorias / prato / bebidas -->
+        <div class="wizard-step" data-step="3">
+          <fieldset>
+            <legend>Categorias</legend>
+
+            <label class="chk">
+              <input
+                type="checkbox"
+                name="fld-categoria"
+                value="Entradas"
+              />
+              Entradas
+            </label>
+
+            <label class="chk">
+              <input
+                type="checkbox"
+                name="fld-categoria"
+                value="Prato Principal"
+                checked
+                disabled
+              />
+              Prato Principal
+            </label>
+
+            <label class="chk">
+              <input
+                type="checkbox"
+                name="fld-categoria"
+                value="Sobremesa"
+              />
+              Sobremesa
+            </label>
+          </fieldset>
+
+          <p class="step-title">Prato principal</p>
+          <label class="rad">
+            <input
+              type="radio"
+              name="fld-prato"
+              value="coquetel"
+              checked
+            />
+            Coquetel
+          </label>
+          <label class="rad">
+            <input
+              type="radio"
+              name="fld-prato"
+              value="almoco_jantar"
+            />
+            Almoço/Jantar
+          </label>
+
+          <p class="step-title">Bebidas alcoólicas?</p>
+          <label class="rad">
+            <input
+              type="radio"
+              name="fld-alcool"
+              value="true"
+              checked
+            />
+            Sim
+          </label>
+          <label class="rad">
+            <input
+              type="radio"
+              name="fld-alcool"
+              value="false"
+            />
+            Não
+          </label>
+
+          <div class="wizard-nav">
+            <button type="button" class="btn-back">Voltar</button>
+            <button type="submit" class="btn-finish">Salvar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <script src="../compartilhado/toast.js"></script>
+
+  <!-- JS local -->
+  <script type="module" src="festas.js"></script>
   <script src="../compartilhado/menu-inferior.js"></script>
-  <script src="../compartilhado/script.js" type="module"></script>
 </body>
 </html>
