@@ -33,6 +33,30 @@ body {
   padding: 0 var(--gutter) var(--nav-height);
 }
 
+/* ===== Loader Overlay (injetado pelo toast.js) ===== */
+#loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #9F7AEA;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ===== Layout Principal ===== */
 .app-main {
   max-width: 1100px;
@@ -44,17 +68,18 @@ body {
 .page-title {
   font-size: 1.75rem;
   color: var(--text-dark);
-  text-align: center;
-  margin-bottom: 1.5rem;
-  display: inline-flex;
+  text-align: center;      /* centraliza tudo */
+  display: flex;           /* alinha ícone + texto */
+  justify-content: center; /* centraliza o flex container */
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* ===== 2) Conteúdo: Grid de duas colunas ===== */
 .content-grid {
   display: grid;
-  grid-template-columns: 300px 1fr; /* calendário fixo 300px, painel à direita */
+  grid-template-columns: 300px 1fr; /* calendário 300px, painel direito expande */
   gap: 1.5rem;
   align-items: start;
 }
@@ -69,7 +94,8 @@ body {
 /* ===== Esquerda: Calendário ===== */
 .left-panel {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 .calendar-box {
   background: var(--bg-card);
@@ -135,6 +161,26 @@ body {
   color: #fff;
 }
 
+/* ===== Campo de busca de festas ===== */
+.search-festa-container {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+.search-festa-container input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #cbd5e0;
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-festa-container input:focus {
+  outline: none;
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 2px rgba(159, 122, 234, 0.2);
+}
+
 /* ===== Direita: cabeçalho e detalhes ===== */
 .right-panel {
   display: flex;
@@ -150,16 +196,16 @@ body {
   box-shadow: var(--shadow);
   font-size: 1rem;
   color: var(--text-dark);
+  text-align: center; /* centraliza todo o conteúdo interno */
 }
 .header-festa p {
   margin: 0;
-  text-align: center;
 }
 .header-festa h2.festa-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  text-align: left;
+  text-align: center; /* título da festa centralizado */
 }
 
 /* ===== 2.2) Painel de detalhes da festa ===== */
@@ -393,7 +439,7 @@ body {
   display: none;
 }
 
-/* ===== Cores de Prioridade ===== */
+/* ===== Cores de Prioridade (borda esquerda) ===== */
 .priority-baixa {
   border-left: 4px solid var(--clr-success);
 }

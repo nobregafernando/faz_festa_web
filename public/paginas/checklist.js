@@ -3,20 +3,22 @@ import { checklistLocal } from "../compartilhado/checklist/local.js";
 import { checklistDecoracao } from "../compartilhado/checklist/decoracao.js";
 
 // Elementos do DOM
-const headerFestaDiv = document.getElementById("header-festa");
-const festaInfoDiv   = document.getElementById("festa-info");
-const categoryCont   = document.getElementById("category-container");
-const tasksSection   = document.getElementById("tasks-container");
-const tasksHeader    = document.getElementById("tasks-header");
-const tasksGrid      = document.getElementById("tasks-grid");
-const btnBack        = document.getElementById("btn-back");
+const headerFestaDiv     = document.getElementById("header-festa");
+const festaInfoDiv       = document.getElementById("festa-info");
+const categoryCont       = document.getElementById("category-container");
+const tasksSection       = document.getElementById("tasks-container");
+const tasksHeader        = document.getElementById("tasks-header");
+const tasksGrid          = document.getElementById("tasks-grid");
+const btnBack            = document.getElementById("btn-back");
+const searchFestaInput   = document.getElementById("search-festa-input");
+const festasDatalist     = document.getElementById("festas-list");
 
 // Variáveis globais
 let allFestas        = [];   // Array de festas do usuário
 let festaId          = null; // ID da festa selecionada
 let dataEventoParam  = null; // Data da festa selecionada (string ISO)
 let gruposGlobal     = {};   // Objeto agrupando tarefas por categoria
-let currentCategoria = null; // Categoria atualmente aberta
+let currentCategory  = null; // Categoria atualmente aberta
 
 /* ===== 1. Ao carregar a página, valida sessão e carrega festas ===== */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -28,13 +30,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // 1.2) Carrega todas as festas do usuário (para marcar no calendário)
+  // 1.2) Carrega todas as festas do usuário (para marcar no calendário e na pesquisa)
   await fetchFestas(session.user.id);
 
   // 1.3) Renderiza o calendário com as festas marcadas
   renderCalendar();
 
-  // 1.4) Estado inicial: só a mensagem “Selecione uma festa...”
+  // 1.4) Popula o datalist de pesquisa com títulos das festas
+  popularDatalistFestas();
+
+  // 1.5) Limpa o campo de busca ao focar, para permitir novas buscas
+  searchFestaInput.addEventListener("focus", () => {
+    searchFestaInput.value = "";
+  });
+
+  // 1.6) Event listener para seleção via campo de pesquisa
+  searchFestaInput.addEventListener("change", () => {
+    const texto = searchFestaInput.value.trim();
+    if (!texto) return;
+    // Encontrar festa cujo texto (nome + data) corresponda ao valor digitado
+    const festaSelecionada = allFestas.find(f => f.text === texto);
+    if (festaSelecionada) {
+      selectFesta(festaSelecionada);
+      // Marca dia no calendário
+      const diaData = new Date(festaSelecionada.data_evento);
+      marcarDiaNoCalendar(diaData);
+    }
+  });
+
+  // 1.7) Estado inicial: só a mensagem “Selecione uma festa...”
   headerFestaDiv.classList.remove("hidden");
   festaInfoDiv.classList.add("hidden");
   categoryCont.classList.add("hidden");
@@ -54,13 +78,25 @@ async function fetchFestas(userId) {
     return;
   }
 
-  // Monta um array com { id, nome, data_evento, text } para uso no calendário
+  // Monta um array com { id, nome, data_evento, text } para uso no calendário e na pesquisa
   allFestas = festas.map((f) => ({
     id: f.id,
     nome: f.nome,
     data_evento: f.data_evento,
+    // 'text' combina nome + data em PT-BR, usado como valor no datalist
     text: `${f.nome} – ${new Date(f.data_evento).toLocaleDateString("pt-BR")}`
   }));
+}
+
+/* ===== Preenche o datalist com as festas disponíveis ===== */
+function popularDatalistFestas() {
+  // Limpa qualquer <option> existente
+  festasDatalist.innerHTML = "";
+  allFestas.forEach((f) => {
+    const option = document.createElement("option");
+    option.value = f.text;
+    festasDatalist.appendChild(option);
+  });
 }
 
 /* ===== 3. Renderiza o calendário com as festas marcadas ===== */
@@ -89,16 +125,13 @@ function renderCalendar() {
   const gridDiasNome = document.createElement("div");
   gridDiasNome.className = "calendar-grid";
   diasNome.forEach((dn) => {
-    const dnDiv = document.createElement("div");
-    dnDiv.className = "day-name";
-    dnDiv.textContent = dn;
+    const dnDiv = document.createElement("div"); dnDiv.className = "day-name"; dnDiv.textContent = dn;
     gridDiasNome.appendChild(dnDiv);
   });
   calDiv.appendChild(gridDiasNome);
 
   // 3.3) Dias do mês (incluindo “inativos” para alinhamento)
-  const gridDias = document.createElement("div");
-  gridDias.className = "calendar-grid";
+  const gridDias = document.createElement("div"); gridDias.className = "calendar-grid";
 
   const firstDay      = new Date(year, month, 1).getDay();
   const daysInMonth   = new Date(year, month + 1, 0).getDate();
@@ -148,6 +181,8 @@ function renderCalendar() {
         const fEscolhida = festasNoDia[0];
         await selectFesta(fEscolhida);
         marcarDiaNoCalendar(diaData);
+        // Atualiza o campo de pesquisa com a festa escolhida
+        searchFestaInput.value = fEscolhida.text;
       });
     }
 
@@ -230,7 +265,7 @@ async function selectFesta(f) {
 
 /* ===== 5. Carrega e exibe cards de categoria ===== */
 async function showCategories(festaIdParam) {
-  currentCategoria = null;
+  currentCategory = null;
   tasksSection.classList.add("hidden");
   tasksGrid.innerHTML = "";
   categoryCont.innerHTML = "";
@@ -316,8 +351,16 @@ function buildCategoryCard(nome, tarefas) {
   card.className = "category-card";
   card.dataset.categoria = nome;
 
+  // Escolhe o ícone com base no nome da categoria
+  let iconClass = "fa-solid fa-box-open"; // ícone genérico como fallback
+  if (nome === "Local") {
+    iconClass = "fa-solid fa-map-location-dot";
+  } else if (nome === "Decoração") {
+    iconClass = "fa-solid fa-palette";
+  }
+
   card.innerHTML = `
-    <i class="fa-solid fa-box-open"></i>
+    <i class="${iconClass}"></i>
     <h2>${nome}</h2>
     <p class="progress">${textoProgress}</p>
   `;
@@ -325,15 +368,15 @@ function buildCategoryCard(nome, tarefas) {
   // Toggle expand/contrair
   card.addEventListener("click", () => {
     if (
-      currentCategoria === nome &&
+      currentCategory === nome &&
       !tasksSection.classList.contains("hidden")
     ) {
       tasksSection.classList.add("hidden");
       categoryCont.classList.remove("hidden");
       tasksGrid.innerHTML = "";
-      currentCategoria = null;
+      currentCategory = null;
     } else {
-      currentCategoria = nome;
+      currentCategory = nome;
       showTasks(nome, gruposGlobal[nome]);
     }
   });
@@ -446,7 +489,7 @@ btnBack.addEventListener("click", () => {
   tasksSection.classList.add("hidden");
   categoryCont.classList.remove("hidden");
   tasksGrid.innerHTML = "";
-  currentCategoria = null;
+  currentCategory = null;
 });
 
 /* ===== 11. Atualiza um item no Supabase ===== */

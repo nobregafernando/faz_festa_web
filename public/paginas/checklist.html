@@ -16,45 +16,61 @@
   />
 
   <!-- Nosso CSS de checklist -->
-  <link rel="stylesheet" href="checklist.css" />
+  <link rel="stylesheet" href="Checklist.css" />
+
+  <!-- Se o seu menu-superior depende de CSS ou precisa estar no head, deixe-o comentado ou ativo aqui:
+  <script type="module" src="../compartilhado/menu-superior.js"></script>
+  -->
 </head>
 <body>
-  <!-- Container para toasts -->
+  <!-- 1) Apenas deixamos o container de toasts: o próprio toast.js injeta o loader -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <main class="app-main">
-    <!-- 1) Título principal centralizado -->
+    <!-- 2) Título principal centralizado -->
     <h1 class="page-title">
       <i class="fa-solid fa-clipboard-check"></i>
       Checklist de Festa
     </h1>
 
-    <!-- 2) Conteúdo principal: calendário à esquerda, painel à direita -->
+    <!-- 3) Conteúdo principal: calendário à esquerda, painel à direita -->
     <div class="content-grid">
-      <!-- Coluna da esquerda: Calendário fixo -->
+      <!-- Coluna da esquerda: Calendário fixo + busca de festa -->
       <div class="left-panel">
         <div id="calendar-container" class="calendar-box"></div>
+
+        <!-- Campo de pesquisa de festas -->
+        <div class="search-festa-container">
+          <input
+            type="text"
+            id="search-festa-input"
+            placeholder="Pesquisar festa..."
+            list="festas-list"
+            autocomplete="off"
+          />
+          <datalist id="festas-list"></datalist>
+        </div>
       </div>
 
       <!-- Coluna da direita: cabeçalho (mensagem ou título) e detalhes -->
       <div class="right-panel">
-        <!-- 2.1) Cabeçalho “Selecione uma festa...” que depois vira o título da festa -->
+        <!-- Cabeçalho “Selecione uma festa...” que depois vira o título da festa -->
         <div id="header-festa" class="header-festa">
-          <p>Selecione uma festa no calendário para visualizar o checklist.</p>
+          <p>Selecione uma festa no calendário ou pesquise acima para visualizar o checklist.</p>
         </div>
 
-        <!-- 2.2) Painel de detalhes (inicialmente oculto) -->
+        <!-- Painel de detalhes (inicialmente oculto) -->
         <div id="festa-info" class="festa-info hidden"></div>
       </div>
     </div>
 
-    <!-- 3) Linha divisória antes das categorias -->
+    <!-- Linha divisória antes das categorias -->
     <hr class="divider" />
 
-    <!-- 4) Cards de categoria (aparecem somente após selecionar uma festa) -->
+    <!-- Cards de categoria (aparecem somente após selecionar uma festa) -->
     <section id="category-container" class="grid category-container hidden"></section>
 
-    <!-- 5) Seção de tarefas (abaixo das categorias) -->
+    <!-- Seção de tarefas (abaixo das categorias) -->
     <section id="tasks-container" class="tasks-section hidden">
       <button id="btn-back" class="btn-back">
         <i class="fa-solid fa-arrow-left"></i> Voltar às Categorias
@@ -64,9 +80,21 @@
     </section>
   </main>
 
-  <!-- Supabase client compartilhado -->
+  <!-- 4) Toast + Loader (toast.js injeta o loader e desaparece no window.load) -->
+  <script src="../compartilhado/toast.js"></script>
+
+  <!-- 5) Supabase client compartilhado -->
   <script type="module" src="../compartilhado/supabaseClient.js"></script>
-  <!-- Script do Checklist -->
+
+  <!-- 6) Script do Checklist -->
   <script type="module" src="Checklist.js"></script>
+
+  <!-- 7) Se quiser usar o menu-superior, pode descomentar esta linha:
+  <script type="module" src="../compartilhado/menu-superior.js"></script>
+  -->
+
+  <!-- 8) Menu Inferior (sempre por último, para garantir que o HTML já exista) -->
+  <script src="../compartilhado/menu-inferior.js"></script>
+  <script src="../compartilhado/acessibilidade.js"></script>
 </body>
 </html>
