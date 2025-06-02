@@ -1,9 +1,6 @@
 import supabase from "../compartilhado/supabaseClient.js";
 import { checklistLocal } from "../compartilhado/checklist/local.js";
-/*
-  Futuramente, importe outros módulos de checklist, por ex:
-    import { checklistDecoracao } from "../compartilhado/checklist/decoracao.js";
-*/
+import { checklistDecoracao } from "../compartilhado/checklist/decoracao.js";
 
 // Elementos do DOM
 const headerFestaDiv = document.getElementById("header-festa");
@@ -15,11 +12,11 @@ const tasksGrid      = document.getElementById("tasks-grid");
 const btnBack        = document.getElementById("btn-back");
 
 // Variáveis globais
-let allFestas       = [];   // Array de festas do usuário
-let festaId         = null; // ID da festa selecionada
-let dataEventoParam = null; // Data da festa selecionada (string ISO)
-let gruposGlobal    = {};   // Objeto agrupando tarefas por categoria
-let currentCategory = null; // Categoria atualmente aberta
+let allFestas        = [];   // Array de festas do usuário
+let festaId          = null; // ID da festa selecionada
+let dataEventoParam  = null; // Data da festa selecionada (string ISO)
+let gruposGlobal     = {};   // Objeto agrupando tarefas por categoria
+let currentCategoria = null; // Categoria atualmente aberta
 
 /* ===== 1. Ao carregar a página, valida sessão e carrega festas ===== */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -233,24 +230,38 @@ async function selectFesta(f) {
 
 /* ===== 5. Carrega e exibe cards de categoria ===== */
 async function showCategories(festaIdParam) {
-  currentCategory = null;
+  currentCategoria = null;
   tasksSection.classList.add("hidden");
   tasksGrid.innerHTML = "";
   categoryCont.innerHTML = "";
   categoryCont.classList.remove("hidden");
 
-  // 5.1) Se não houver tarefas no banco, insere o padrão
+  // 5.1) Tenta buscar se há itens de checklist dessa festa
   const { data: existentes } = await supabase
     .from("checklist_evento")
-    .select("id, categoria, concluido")
+    .select("id, categoria")
     .eq("festa_id", festaIdParam);
 
-  if (!existentes || existentes.length === 0) {
-    const tarefas = [...checklistLocal(festaIdParam)];
-    await supabase.from("checklist_evento").insert(tarefas);
+  if (existentes === null) {
+    console.error("Erro ao buscar itens de checklist_evento.");
+    return;
   }
 
-  // 5.2) Busca todos os itens do checklist
+  // 5.2) Verifica categoria “Local”
+  const existeLocal = existentes.some((item) => item.categoria === "Local");
+  if (!existeLocal) {
+    const tarefasLocal = checklistLocal(festaIdParam);
+    await supabase.from("checklist_evento").insert(tarefasLocal);
+  }
+
+  // 5.3) Verifica categoria “Decoração”
+  const existeDecoracao = existentes.some((item) => item.categoria === "Decoração");
+  if (!existeDecoracao) {
+    const tarefasDecoracao = checklistDecoracao(festaIdParam);
+    await supabase.from("checklist_evento").insert(tarefasDecoracao);
+  }
+
+  // 5.4) Agora busca todos os itens (já inseridos) do checklist para exibir
   const { data: itens } = await supabase
     .from("checklist_evento")
     .select("*")
@@ -263,17 +274,17 @@ async function showCategories(festaIdParam) {
     return;
   }
 
-  // 5.3) Agrupa as tarefas por categoria
+  // 5.5) Agrupa as tarefas por categoria
   gruposGlobal = itens.reduce((acc, item) => {
     if (!acc[item.categoria]) acc[item.categoria] = [];
     acc[item.categoria].push(item);
     return acc;
   }, {});
 
-  // 5.4) Atualiza o resumo geral de tarefas (no topo de festa-info)
+  // 5.6) Atualiza o resumo geral de tarefas (no topo de festa-info)
   updateResumoTarefas(itens);
 
-  // 5.5) Cria card para cada categoria
+  // 5.7) Cria card para cada categoria
   Object.entries(gruposGlobal).forEach(([categoria, tarefas]) => {
     const card = buildCategoryCard(categoria, tarefas);
     categoryCont.appendChild(card);
@@ -314,15 +325,15 @@ function buildCategoryCard(nome, tarefas) {
   // Toggle expand/contrair
   card.addEventListener("click", () => {
     if (
-      currentCategory === nome &&
+      currentCategoria === nome &&
       !tasksSection.classList.contains("hidden")
     ) {
       tasksSection.classList.add("hidden");
       categoryCont.classList.remove("hidden");
       tasksGrid.innerHTML = "";
-      currentCategory = null;
+      currentCategoria = null;
     } else {
-      currentCategory = nome;
+      currentCategoria = nome;
       showTasks(nome, gruposGlobal[nome]);
     }
   });
@@ -347,10 +358,22 @@ function showTasks(categoria, tarefas) {
 /* ===== 9. Cria Card de Tarefa ===== */
 function buildTaskCard(item) {
   const card = document.createElement("div");
-  card.className = `task-card priority-${item.prioridade}`;
+  card.className = "task-card";
+
   if (item.concluido) {
     card.classList.add("completed");
   }
+
+  // Ajusta a classe de prioridade sem acentos, para combinar com o checklist.css
+  // prioridade pode ser “alta”, “média” ou “baixa”
+  // convertendo “média” → “media”
+  const prioSemAcento = item.prioridade
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  // Adiciona, por exemplo, "priority-alta" ou "priority-media" ou "priority-baixa"
+  card.classList.add(`priority-${prioSemAcento}`);
 
   // Checkbox
   const chk = document.createElement("input");
@@ -423,7 +446,7 @@ btnBack.addEventListener("click", () => {
   tasksSection.classList.add("hidden");
   categoryCont.classList.remove("hidden");
   tasksGrid.innerHTML = "";
-  currentCategory = null;
+  currentCategoria = null;
 });
 
 /* ===== 11. Atualiza um item no Supabase ===== */
@@ -449,9 +472,7 @@ async function atualizarProgressoCategoria(categoria) {
   const restantes = itensCat.filter((t) => !t.concluido).length;
   const progressoTexto =
     restantes > 0
-      ? `Resta${restantes > 1 ? "m" : ""} ${restantes} tarefa${
-          restantes > 1 ? "s" : ""
-        } a realizar`
+      ? `Resta${restantes > 1 ? "m" : ""} ${restantes} tarefa${restantes > 1 ? "s" : ""} a realizar`
       : "Todas as tarefas concluídas";
 
   // Atualiza o card daquela categoria
@@ -474,7 +495,6 @@ async function atualizarProgressoCategoria(categoria) {
 
 /* ===== 13. Carrega e exibe os detalhes resumidos da festa ===== */
 async function loadFestaInfo(f) {
-  // f: objeto { id, nome, data_evento, text }
   festaId = f.id;
   dataEventoParam = f.data_evento;
 
