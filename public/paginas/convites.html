@@ -16,9 +16,6 @@
     type="text/css"
   />
 
-  <!-- Toast (opcional) -->
-  <link rel="stylesheet" href="../compartilhado/toast.css" type="text/css" />
-
   <!-- CSS desta página -->
   <link rel="stylesheet" href="convites.css" />
 </head>
@@ -26,7 +23,7 @@
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <main class="app-main">
-    <h1 class="section-title">Montagem de Convites</h1>
+    <h1 class="section-title">Gerador de Convites</h1>
     <div class="container">
       <!-- EDITOR -->
       <div class="editor">
@@ -43,22 +40,34 @@
         <input type="file" id="uploadImagem" accept="image/*" />
 
         <label for="evento">Título</label>
-        <input type="text" id="evento" placeholder="Casamento / 15 anos" required />
+        <div class="input-with-controls">
+          <input type="text" id="evento" placeholder="Casamento / 15 anos" required />
+          <div class="font-controls">
+            <button type="button" id="decTitulo" class="font-btn"><i class="fa fa-minus"></i></button>
+            <span id="displayTituloSize">36</span>
+            <button type="button" id="incTitulo" class="font-btn"><i class="fa fa-plus"></i></button>
+          </div>
+        </div>
+        <!-- Campo oculto para armazenar tamanho -->
+        <input type="hidden" id="tamanhoTitulo" value="36" />
 
         <label for="fonteTitulo">Fonte do Título</label>
         <select id="fonteTitulo"></select>
 
-        <label for="tamanhoTitulo">Tamanho do Título</label>
-        <input type="number" id="tamanhoTitulo" value="36" required />
-
         <label for="subtitulo">Subtítulo</label>
-        <input type="text" id="subtitulo" placeholder="Emilly – Bruno e Letícia" required />
+        <div class="input-with-controls">
+          <input type="text" id="subtitulo" placeholder="Emilly – Bruno e Letícia" required />
+          <div class="font-controls">
+            <button type="button" id="decSubtitulo" class="font-btn"><i class="fa fa-minus"></i></button>
+            <span id="displaySubtituloSize">42</span>
+            <button type="button" id="incSubtitulo" class="font-btn"><i class="fa fa-plus"></i></button>
+          </div>
+        </div>
+        <!-- Campo oculto para armazenar tamanho -->
+        <input type="hidden" id="tamanhoSubtitulo" value="42" />
 
         <label for="fonteSubtitulo">Fonte do Subtítulo</label>
         <select id="fonteSubtitulo"></select>
-
-        <label for="tamanhoSubtitulo">Tamanho do Subtítulo</label>
-        <input type="number" id="tamanhoSubtitulo" value="42" required />
 
         <label for="data">Data</label>
         <input type="date" id="data" required />
@@ -98,5 +107,6 @@
   <script src="../compartilhado/menu-inferior.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="convites.js"></script>
+  <script src="../compartilhado/toast.js"></script>
 </body>
 </html>

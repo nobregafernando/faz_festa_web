@@ -1,3 +1,5 @@
+/* convites.css */
+
 :root {
   --clr-primary: #9f7aea;
   --clr-secondary: #6b46c1;
@@ -29,8 +31,9 @@ body {
   margin: var(--gutter) auto;
 }
 .section-title {
-  font-size: 1.5rem;
+  font-size: 2.0rem;
   margin-bottom: var(--gutter);
+  text-align: center; /* CENTRALIZAÇÃO DO TÍTULO */
 }
 
 /* CONTAINER FLEX */
@@ -74,6 +77,39 @@ body {
 .editor textarea {
   resize: vertical;
   min-height: 56px;
+}
+
+/* CONTROLS INLINE PARA FONTE */
+.input-with-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.input-with-controls input[type="text"] {
+  flex: 1;
+}
+.font-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.font-btn {
+  background: #a4896c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background .3s;
+}
+.font-btn:hover {
+  background: #8b6f55;
+}
+.font-controls span {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: #5e4631;
 }
 
 /* CARROSSEL DE MINIATURAS */

@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     header.className = "app-header";
     header.innerHTML = `
       <div class="header-left">
-        <span class="logo-text">fazFesta</span>
+        <span class="logo-text">fazFestas</span>
         <span class="greeting">Olá,&nbsp;<strong id="user-name">Usuário</strong>!</span>
       </div>
       <div class="header-right">
