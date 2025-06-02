@@ -8,9 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     style.id = "ms-style";
     style.textContent = `
       .app-header {
-        position: sticky;
-        top: 0; left: 0; right: 0;
-        z-index: 100;
+        /* Removido position: sticky para que o menu não acompanhe ao rolar a página */
+        position: relative;
         background: var(--bg-light);
         backdrop-filter: blur(8px);
         display: flex;
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         border-bottom-left-radius: var(--radius);
         border-bottom-right-radius: var(--radius);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        z-index: 100;
       }
       .app-header .header-left {
         display: flex;
@@ -42,11 +42,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         font-weight: 600;
       }
       .app-header .user-card {
-        width: 2.4rem; height: 2.4rem;
+        width: 2.4rem;
+        height: 2.4rem;
         border-radius: 50%;
         background: var(--bg-white);
         border: 1px solid #E2E8F0;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         transition: box-shadow var(--transition);
       }

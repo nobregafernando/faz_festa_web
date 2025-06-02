@@ -230,7 +230,7 @@ const cores = [
   '#E57373', '#F06292', '#BA68C8', '#9575CD',
   '#7986CB', '#64B5F6', '#4FC3F7', '#4DD0E1',
   '#81C784', '#FFD54F', '#F8BBD0', '#F48FB1',
-  '#000000'
+  '#000000', '#FFFFFF'
 ];
 cores.forEach(c => {
   const sw = document.createElement('div');

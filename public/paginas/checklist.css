@@ -1,44 +1,435 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+/* ===== Variáveis Globais ===== */
 :root {
   --clr-primary: #9f7aea;
   --clr-secondary: #6b46c1;
-  --bg-light: rgba(255, 255, 255, 0.8);
-  --bg-white: #fff;
-  --text-dark: #2d3748;
-  --text-light: #718096;
-  --radius: 1rem;
-  --transition: 0.3s ease;
-  --nav-height: 4.5rem;
-  --gutter: 1rem;
+  --clr-success: #38a169;
+  --clr-warning: #d69e2e;
+  --clr-danger : #e53e3e;
+  --bg-light   : rgba(255, 255, 255, 0.9);
+  --bg-card    : #ffffff;
+  --bg-white   : #ffffff;
+  --text-dark  : #2d3748;
+  --text-light : #718096;
+  --radius     : 0.75rem;
+  --shadow     : 0 4px 10px rgba(0, 0, 0, 0.08);
+  --gutter     : 1rem;
+  --nav-height : 4.5rem;
+  --transition : 0.3s ease;
 }
 
+/* ===== Reset Básico ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(180deg, #d8b4f6, #fbcfe8) fixed;
   background-size: cover;
+  min-height: 100vh;
   padding: 0 var(--gutter) var(--nav-height);
 }
 
-/* Conteúdo principal */
+/* ===== Layout Principal ===== */
 .app-main {
-  width: 100%;
-  max-width: 1200px;
+  max-width: 1100px;
   margin: var(--gutter) auto;
   padding-bottom: var(--gutter);
 }
 
-.section-title {
-  font-size: 1.25rem;
+/* ===== 1) Título principal ===== */
+.page-title {
+  font-size: 1.75rem;
   color: var(--text-dark);
-  margin-bottom: 0.75rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Menu inferior (injetado por menu-inferior.js) */
+/* ===== 2) Conteúdo: Grid de duas colunas ===== */
+.content-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr; /* calendário fixo 300px, painel à direita */
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* ===== Esquerda: Calendário ===== */
+.left-panel {
+  display: flex;
+  justify-content: center;
+}
+.calendar-box {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  width: 300px; /* largura fixa */
+  height: auto;
+}
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.calendar-header button {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--clr-primary);
+  transition: color var(--transition);
+}
+.calendar-header button:hover {
+  color: var(--clr-secondary);
+}
+.calendar-header .month-year {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+.calendar-grid .day-name {
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.calendar-grid .day {
+  width: 100%;
+  padding: 0.4rem;
+  text-align: center;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.calendar-grid .day:hover {
+  background: var(--bg-light);
+}
+.calendar-grid .day.inactive {
+  color: #ccc;
+  cursor: default;
+}
+.calendar-grid .day.festa {
+  background: var(--clr-primary);
+  color: #fff;
+}
+.calendar-grid .day.selected {
+  background: var(--clr-secondary);
+  color: #fff;
+}
+
+/* ===== Direita: cabeçalho e detalhes ===== */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ===== 2.1) Mensagem inicial / Título da festa ===== */
+.header-festa {
+  background: var(--bg-card);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+.header-festa p {
+  margin: 0;
+  text-align: center;
+}
+.header-festa h2.festa-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* ===== 2.2) Painel de detalhes da festa ===== */
+.festa-info {
+  background: var(--bg-card);
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.3s ease-out;
+}
+.festa-info.hidden {
+  display: none;
+}
+/* ===== Animação de fadeIn ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Parágrafo “Faltam X tarefas…” ===== */
+.festa-info .resumo-tarefas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+.festa-info .resumo-tarefas i {
+  color: var(--clr-primary);
+}
+.festa-info .resumo-tarefas .texto-resumo {}
+
+/* ===== Grade de informações ===== */
+.festa-info .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+}
+@media (max-width: 640px) {
+  .festa-info .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.festa-info .info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.festa-info .info-item i {
+  font-size: 1.1rem;
+  color: var(--clr-primary);
+  width: 1.25rem;
+  text-align: center;
+}
+.festa-info .info-item .label {
+  width: 100px;
+  font-weight: 600;
+  color: var(--text-dark);
+  flex-shrink: 0;
+}
+.festa-info .info-item .value {
+  flex: 1;
+  color: var(--text-dark);
+  word-break: break-word;
+}
+
+/* ===== 3) Linha divisória antes das categorias ===== */
+.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1.75rem 0;
+}
+
+/* ===== Grid Utilitário ===== */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 600px) {
+  .category-container {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    justify-content: center;
+  }
+  .tasks-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    justify-content: center;
+  }
+}
+@media (max-width: 599px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Cards de Categoria ===== */
+.category-container {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.category-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  max-width: 300px;
+  margin: 0 auto;
+  min-height: 140px;
+}
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+.category-card i {
+  font-size: 2rem;
+  color: var(--clr-primary);
+  margin-bottom: 0.5rem;
+}
+.category-card h2 {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  margin-bottom: 0.4rem;
+}
+.category-card p.progress {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  font-weight: 500;
+  margin-top: 0.4rem;
+}
+.category-card.selected {
+  border: 2px solid var(--clr-secondary);
+}
+
+/* ===== Seção de Tarefas ===== */
+.tasks-section {
+  margin-top: 1rem;
+}
+.btn-back {
+  background: var(--bg-card);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.5rem 1rem;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.btn-back i {
+  margin-right: 0.5rem;
+}
+.btn-back:hover {
+  background: var(--bg-light);
+  transform: translateY(-2px);
+}
+.tasks-header {
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+/* ===== Cards de Tarefa ===== */
+.task-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+}
+.task-card input[type="checkbox"] {
+  accent-color: var(--clr-primary);
+  margin-top: 0.25rem;
+}
+.task-info {
+  flex: 1;
+  padding-right: 2rem;
+}
+.task-desc {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+.task-note {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+/* Ícone de anotação para expandir textarea */
+.task-card .icon-note {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color: var(--text-light);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.task-card .icon-note:hover {
+  color: var(--clr-primary);
+}
+
+/* Campo de anotação (textarea), escondido por padrão */
+.note-edit {
+  width: 100%;
+  border: 1px solid #cbd5e0;
+  border-radius: var(--radius);
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  resize: vertical;
+  margin-top: 0.75rem;
+  display: none;
+}
+
+/* ===== Cores de Prioridade ===== */
+.priority-baixa {
+  border-left: 4px solid var(--clr-success);
+}
+.priority-media {
+  border-left: 4px solid var(--clr-warning);
+}
+.priority-alta {
+  border-left: 4px solid var(--clr-danger);
+}
+
+/* ===== Tarefas Concluídas ===== */
+.task-card.completed {
+  opacity: 0.5;
+}
+.task-card.completed .task-desc {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 900px) {
+  .content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .left-panel,
+  .right-panel {
+    width: 100%;
+  }
+  .festa-info .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Barra Inferior (mesmo estilo anterior) ===== */
 #bottom-nav {
   position: fixed;
   bottom: 0;
@@ -52,14 +443,12 @@ body {
   justify-content: center;
   z-index: 100;
 }
-
 .nav-list {
   display: flex;
   width: 100%;
   max-width: 480px;
   justify-content: space-around;
 }
-
 .nav-item {
   flex: 1;
   text-align: center;
@@ -68,21 +457,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   cursor: pointer;
   transition: color var(--transition);
 }
-
 .nav-item i {
   font-size: 1.25rem;
 }
-
 .nav-item.active,
 .nav-item:hover {
   color: var(--clr-primary);
 }
 
-/* Responsivo */
+/* ===== Ajustes finais ===== */
 @media (max-width: 768px) {
   .app-main {
     padding: 0;

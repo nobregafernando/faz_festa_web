@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nova Página – FazFestas</title>
+  <title>Checklist – FazFestas</title>
 
   <!-- Fontes / Ícones -->
   <link
@@ -12,28 +12,68 @@
   />
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
 
-  <!-- Toast (opcional) -->
-  <link rel="stylesheet" href="../compartilhado/toast.css" type="text/css" />
+  <!-- (Comentado) Toast tem MIME incorreto no ambiente atual, então removido para evitar erro -->
+  <!-- <link rel="stylesheet" href="../compartilhado/toast.css" /> -->
 
-  <!-- CSS desta página -->
-  <link rel="stylesheet" href="modelo.css" />
+  <!-- Scripts de menus (se estiverem funcionando) -->
+  <script type="module" src="../compartilhado/menu-superior.js"></script>
+  <script src="../compartilhado/menu-inferior.js"></script>
+
+  <!-- Nosso CSS de checklist -->
+  <link rel="stylesheet" href="checklist.css" />
 </head>
 <body>
   <!-- Container para toasts -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- Conteúdo específico da página -->
   <main class="app-main">
-    <!-- ... -->
+    <!-- 1) Título principal centralizado -->
+    <h1 class="page-title">
+      <i class="fa-solid fa-clipboard-check"></i>
+      Checklist de Festa
+    </h1>
+
+    <!-- 2) Conteúdo principal: calendário à esquerda, painel à direita -->
+    <div class="content-grid">
+      <!-- Coluna da esquerda: Calendário fixo -->
+      <div class="left-panel">
+        <div id="calendar-container" class="calendar-box"></div>
+      </div>
+
+      <!-- Coluna da direita: cabeçalho (mensagem ou título) e detalhes -->
+      <div class="right-panel">
+        <!-- 2.1) Cabeçalho “Selecione uma festa...” que depois vira o título da festa -->
+        <div id="header-festa" class="header-festa">
+          <p>Selecione uma festa no calendário para visualizar o checklist.</p>
+        </div>
+
+        <!-- 2.2) Painel de detalhes (inicialmente oculto) -->
+        <div id="festa-info" class="festa-info hidden"></div>
+      </div>
+    </div>
+
+    <!-- 3) Linha divisória antes das categorias -->
+    <hr class="divider" />
+
+    <!-- 4) Cards de categoria (aparecem somente após selecionar uma festa) -->
+    <section id="category-container" class="grid category-container hidden"></section>
+
+    <!-- 5) Seção de tarefas (abaixo das categorias) -->
+    <section id="tasks-container" class="tasks-section hidden">
+      <button id="btn-back" class="btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Voltar às Categorias
+      </button>
+      <h2 id="tasks-header" class="tasks-header"></h2>
+      <div id="tasks-grid" class="grid tasks-grid"></div>
+    </section>
   </main>
 
-  <!-- Scripts gerais -->
-  <script type="module" src="../compartilhado/menu-superior.js"></script>
-  <script src="../compartilhado/menu-inferior.js"></script>
-  <script type="module" src="../compartilhado/script.js"></script>
+  <!-- Supabase client compartilhado -->
+  <script type="module" src="../compartilhado/supabaseClient.js"></script>
+  <!-- Script do Checklist -->
+  <script type="module" src="checklist.js"></script>
 </body>
 </html>

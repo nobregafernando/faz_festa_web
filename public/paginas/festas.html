@@ -6,28 +6,12 @@
   <title>Festas – FazFestas</title>
 
   <!-- Fontes / Ícones -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <!-- Toast / Flatpickr -->
-  <style>
-    #toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 1000;
-    }
-  </style>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-  />
+  <style>#toast-container{position:fixed;top:1rem;right:1rem;z-index:1000}</style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
   <!-- CSS local -->
   <link rel="stylesheet" href="festas.css" />
@@ -35,26 +19,12 @@
 <body>
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- HEADER -->
-  <header class="app-header">
-    <h1 class="logo-text">fazFesta</h1>
-    <button class="icon-btn" id="btn-profile">
-      <i class="fa-solid fa-user-circle"></i>
-    </button>
-  </header>
-
-  <!-- Ações rápidas -->
-  <section class="quick-actions">
-    <button id="btn-new" class="action-btn">
-      <i class="fa-solid fa-plus"></i> Nova festa
-    </button>
-    <button id="btn-filter" class="action-btn">
-      <i class="fa-solid fa-filter"></i> Filtrar
-    </button>
-  </section>
-
-  <!-- Lista de festas -->
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="app-main">
+    <section class="quick-actions">
+      <button id="btn-new" class="action-btn"><i class="fa-solid fa-plus"></i> Nova festa</button>
+      <button id="btn-filter" class="action-btn"><i class="fa-solid fa-filter"></i> Filtrar</button>
+    </section>
     <section id="festas-container" class="festas-grid"></section>
   </main>
 
@@ -63,18 +33,9 @@
     <div class="overlay-box">
       <h2>Filtrar festas</h2>
       <form id="filter-form">
-        <label>
-          Data inicial
-          <input type="text" id="flt-data-start" placeholder="DD/MM/AAAA" />
-        </label>
-        <label>
-          Data final
-          <input type="text" id="flt-data-end" placeholder="DD/MM/AAAA" />
-        </label>
-        <label>
-          Tipo de festa
-          <select id="flt-tipo"><option value="">Todos</option></select>
-        </label>
+        <label>Data inicial <input type="text" id="flt-data-start" placeholder="DD/MM/AAAA" /></label>
+        <label>Data final   <input type="text" id="flt-data-end"   placeholder="DD/MM/AAAA" /></label>
+        <label>Tipo de festa <select id="flt-tipo"><option value="">Todos</option></select></label>
         <div class="overlay-actions">
           <button type="button" id="flt-clear">Limpar</button>
           <button type="submit">Aplicar</button>
@@ -83,167 +44,102 @@
     </div>
   </div>
 
-  <!-- WIZARD (criar/editar) -->
+  <!-- MODAL / WIZARD -->
   <div id="wizard-overlay" class="overlay hidden">
     <div class="wizard">
       <header class="wizard-header">
         <h2 id="wizard-title">Nova festa</h2>
-        <button id="wizard-close" class="icon-btn">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button id="wizard-close" class="icon-btn" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
       </header>
+
+      <!-- barra de progresso -->
+      <div class="wizard-progress"><div class="wizard-progress-bar"></div></div>
 
       <form id="wizard-form">
         <!-- passo 0 -->
         <div class="wizard-step active" data-step="0">
-          <label>
-            Nome
-            <input type="text" id="fld-nome" required />
-          </label>
+          <label>Nome <input type="text" id="fld-nome" required /></label>
           <div class="wizard-nav">
-            <button type="button" class="btn-next">Próximo</button>
+            <button type="button" class="btn-next"><i class="fa-solid fa-arrow-right"></i> Próximo</button>
           </div>
         </div>
 
         <!-- passo 1 -->
         <div class="wizard-step" data-step="1">
-          <label>
-            Data
-            <input
-              type="text"
-              id="fld-data"
-              required
-              placeholder="DD/MM/AAAA"
-            />
-          </label>
-          <label>
-            Duração
+          <label>Data <input type="text" id="fld-data" required placeholder="DD/MM/AAAA" /></label>
+          <label>Duração
             <select id="fld-duracao" required>
-              <option value="">Escolha…</option>
-              <option value="4">4h</option>
-              <option value="5">5h</option>
-              <option value="6">6h</option>
-              <option value="7">7h</option>
+              <option value="">Escolha…</option><option value="4">4h</option><option value="5">5h</option>
+              <option value="6">6h</option><option value="7">7h</option>
             </select>
           </label>
-          <label>
-            Convidados
-            <input
-              type="number"
-              id="fld-convidados"
-              min="1"
-              required
-            />
-          </label>
+          <label>Convidados <input type="number" id="fld-convidados" min="1" required /></label>
           <div class="wizard-nav">
-            <button type="button" class="btn-back">Voltar</button>
-            <button type="button" class="btn-next">Próximo</button>
+            <button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+            <button type="button" class="btn-next"><i class="fa-solid fa-arrow-right"></i> Próximo</button>
           </div>
         </div>
 
         <!-- passo 2 -->
         <div class="wizard-step" data-step="2">
-          <label>
-            Tipo de festa
-            <select id="fld-tipo-evento" required>
-              <option value="">Selecione...</option>
-            </select>
-          </label>
+          <label>Tipo de festa <select id="fld-tipo-evento" required><option value="">Selecione...</option></select></label>
           <div class="wizard-nav">
-            <button type="button" class="btn-back">Voltar</button>
-            <button type="button" class="btn-next">Próximo</button>
+            <button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+            <button type="button" class="btn-next"><i class="fa-solid fa-arrow-right"></i> Próximo</button>
           </div>
         </div>
 
-        <!-- passo 3: categorias / prato / bebidas -->
+        <!-- passo 3 (reestilizado) -->
         <div class="wizard-step" data-step="3">
-          <fieldset>
-            <legend>Categorias</legend>
+          <div class="wizard-options">
+            <!-- Categorias -->
+            <fieldset class="opt-section">
+              <legend>Categorias</legend>
+              <div class="opt-grid">
+                <label class="chk"><input type="checkbox" name="fld-categoria" value="Entradas" /> Entradas</label>
+                <label class="chk"><input type="checkbox" name="fld-categoria" value="Prato Principal" checked disabled /> Prato Principal</label>
+                <label class="chk"><input type="checkbox" name="fld-categoria" value="Sobremesa" /> Sobremesa</label>
+              </div>
+            </fieldset>
 
-            <label class="chk">
-              <input
-                type="checkbox"
-                name="fld-categoria"
-                value="Entradas"
-              />
-              Entradas
-            </label>
+            <!-- Prato principal -->
+            <fieldset class="opt-section">
+              <legend>Prato principal</legend>
+              <div class="opt-grid">
+                <label class="rad"><input type="radio" name="fld-prato" value="coquetel" checked /> Coquetel</label>
+                <label class="rad"><input type="radio" name="fld-prato" value="almoco_jantar" /> Almoço/Jantar</label>
+              </div>
+            </fieldset>
 
-            <label class="chk">
-              <input
-                type="checkbox"
-                name="fld-categoria"
-                value="Prato Principal"
-                checked
-                disabled
-              />
-              Prato Principal
-            </label>
-
-            <label class="chk">
-              <input
-                type="checkbox"
-                name="fld-categoria"
-                value="Sobremesa"
-              />
-              Sobremesa
-            </label>
-          </fieldset>
-
-          <p class="step-title">Prato principal</p>
-          <label class="rad">
-            <input
-              type="radio"
-              name="fld-prato"
-              value="coquetel"
-              checked
-            />
-            Coquetel
-          </label>
-          <label class="rad">
-            <input
-              type="radio"
-              name="fld-prato"
-              value="almoco_jantar"
-            />
-            Almoço/Jantar
-          </label>
-
-          <p class="step-title">Bebidas alcoólicas?</p>
-          <label class="rad">
-            <input
-              type="radio"
-              name="fld-alcool"
-              value="true"
-              checked
-            />
-            Sim
-          </label>
-          <label class="rad">
-            <input
-              type="radio"
-              name="fld-alcool"
-              value="false"
-            />
-            Não
-          </label>
+            <!-- Bebidas -->
+            <fieldset class="opt-section">
+              <legend>Bebidas alcoólicas?</legend>
+              <div class="opt-grid">
+                <label class="rad"><input type="radio" name="fld-alcool" value="true"  checked /> Sim</label>
+                <label class="rad"><input type="radio" name="fld-alcool" value="false" /> Não</label>
+              </div>
+            </fieldset>
+          </div>
 
           <div class="wizard-nav">
-            <button type="button" class="btn-back">Voltar</button>
-            <button type="submit" class="btn-finish">Salvar</button>
+            <button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+            <button type="submit" class="btn-finish"><i class="fa-solid fa-check"></i> Salvar</button>
           </div>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- libs -->
+  <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="../compartilhado/toast.js"></script>
 
-  <!-- JS local -->
-  <script type="module" src="festas.js"></script>
+  <!-- Menus -->
+  <script type="module" src="../compartilhado/menu-superior.js"></script>
   <script src="../compartilhado/menu-inferior.js"></script>
+
+  <!-- Lógica local -->
+  <script type="module" src="festas.js"></script>
 </body>
 </html>
