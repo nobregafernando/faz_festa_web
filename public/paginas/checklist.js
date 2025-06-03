@@ -1,8 +1,14 @@
-// Checklist.js – FazFestas (v2.3 corrigido • 02 jun 2025)
+/* ===================================================================== *
+ *  Checklist.js – FazFestas (v4.1 • 05 jun 2025)                         *
+ *  – Corrige clique em datas: usa “YYYY-MM-DD” para comparação             *
+ *  – Destaca adequadamente o dia selecionado                              *
+ *  – Remove títulos de checklist ao fechar                                 *
+ *  – Fluxo de inserção e renderização simplificado                         *
+ * ===================================================================== */
+
 import supabase               from "../compartilhado/supabaseClient.js";
 import { checklistLocal }     from "../compartilhado/checklist/local.js";
 import { checklistDecoracao } from "../compartilhado/checklist/decoracao.js";
-import { checklistConvites }  from "../compartilhado/checklist/convites.js";
 
 /* ───────────────────── Elementos DOM ───────────────────── */
 const headerFestaDiv   = document.getElementById("header-festa");
@@ -15,20 +21,20 @@ const btnBack          = document.getElementById("btn-back");
 const searchFestaInput = document.getElementById("search-festa-input");
 const festasDatalist   = document.getElementById("festas-list");
 
-/* ────────────────────── Estado Global ────────────────────── */
-let allFestas       = [];
+/* ───────────────────── Estado Global ───────────────────── */
+let allFestas       = [];  // cada item terá { id, nome, data_evento, text, dateSimple }
 let festaId         = null;
-let dataEventoParam = null;
+let dataEventoParam = null; // string ISO completa
 let gruposGlobal    = {};
 let currentCategory = null;
 
-/* ───────── Remove overlay/loader (toast.js) ───────── */
+/* ───────── Remove overlay/loader (toast.js) se existente ───────── */
 function hideLoader() {
   const loader = document.getElementById("loader-overlay");
   if (loader) loader.remove();
 }
 
-/* ───────────────── Inicialização ───────────────── */
+/* ─────────────────── Inicialização da página ─────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
   hideLoader();
 
@@ -42,23 +48,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 2) Carrega todas as festas do usuário
   await fetchFestas(session.user.id);
 
-  // 3) Renderiza calendário e preenche lista de busca
+  // 3) Renderiza calendário e lista de busca
   renderCalendar();
   popularDatalistFestas();
 
-  // 4) Sincroniza lista <-> calendário
-  searchFestaInput.addEventListener("focus", () => (searchFestaInput.value = ""));
+  // 4) Sincroniza campo de busca: ao focar limpa; ao mudar, seleciona festa
+  searchFestaInput.addEventListener("focus", () => {
+    searchFestaInput.value = "";
+  });
   searchFestaInput.addEventListener("change", () => {
     const txt = searchFestaInput.value.trim();
     if (!txt) return;
     const festSel = allFestas.find(f => f.text === txt);
     if (festSel) {
       selectFesta(festSel);
-      marcarDiaNoCalendar(new Date(festSel.data_evento));
+      marcarDiaNoCalendar(festSel.dateSimple);
     }
   });
 
-  // 5) Estado inicial de visibilidade
+  // 5) Visibilidade inicial
   headerFestaDiv.classList.remove("hidden");
   festaInfoDiv.classList.add("hidden");
   categoryCont.classList.add("hidden");
@@ -66,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 1. Busca todas as festas do usuário                                 ║
+   ║ 1) Busca todas as festas do usuário                                ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 async function fetchFestas(userId) {
   const { data, error } = await supabase
@@ -80,14 +88,22 @@ async function fetchFestas(userId) {
     return;
   }
 
-  allFestas = data.map(f => ({
-    ...f,
-    text: `${f.nome} – ${new Date(f.data_evento).toLocaleDateString("pt-BR")}`
-  }));
+  // mapeia e adiciona “dateSimple” (YYYY-MM-DD) para cada festa
+  allFestas = data.map(f => {
+    const iso = new Date(f.data_evento).toISOString();
+    const simple = iso.split("T")[0];
+    return {
+      id: f.id,
+      nome: f.nome,
+      data_evento: f.data_evento,
+      text: `${f.nome} – ${new Date(f.data_evento).toLocaleDateString("pt-BR")}`,
+      dateSimple: simple
+    };
+  });
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 2. Preenche o datalist (lista de busca)                             ║
+   ║ 2) Preenche o datalist (lista de busca)                             ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 function popularDatalistFestas() {
   festasDatalist.innerHTML = "";
@@ -99,7 +115,7 @@ function popularDatalistFestas() {
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 3. Renderiza calendário completo                                     ║
+   ║ 3) Renderiza calendário completo                                     ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 let currentCalendarDate = new Date();
 
@@ -111,246 +127,263 @@ function renderCalendar() {
   const m = currentCalendarDate.getMonth();
   const y = currentCalendarDate.getFullYear();
 
-  // Cabeçalho mês/ano
-  calDiv.insertAdjacentHTML(
-    "afterbegin",
-    `<div class="calendar-header">
-       <button id="prev-month"><i class="fa-solid fa-chevron-left"></i></button>
-       <span class="month-year">${formatMonthYear(m, y)}</span>
-       <button id="next-month"><i class="fa-solid fa-chevron-right"></i></button>
-     </div>`
-  );
+  // ▸ Cabeçalho (mês e botões)
+  const header = document.createElement("div");
+  header.className = "calendar-header";
+  header.innerHTML = `
+    <button id="prev-month"><i class="fa-solid fa-chevron-left"></i></button>
+    <span class="month-year">${formatMonthYear(m, y)}</span>
+    <button id="next-month"><i class="fa-solid fa-chevron-right"></i></button>
+  `;
+  calDiv.appendChild(header);
 
-  // Dias da semana
-  const dias = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-  const row   = document.createElement("div");
-  row.className = "calendar-grid";
-  dias.forEach(d =>
-    row.insertAdjacentHTML("beforeend", `<div class="day-name">${d}</div>`)
-  );
-  calDiv.appendChild(row);
+  // ▸ Nomes dos dias da semana
+  const diasNome = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const rowDias = document.createElement("div");
+  rowDias.className = "calendar-grid";
+  diasNome.forEach(d => {
+    const dn = document.createElement("div");
+    dn.className = "day-name";
+    dn.textContent = d;
+    rowDias.appendChild(dn);
+  });
+  calDiv.appendChild(rowDias);
 
-  // Dias do mês
-  const grid = document.createElement("div");
-  grid.className = "calendar-grid";
+  // ▸ Grid de dias
+  const gridDias = document.createElement("div");
+  gridDias.className = "calendar-grid";
 
-  const firstDay = new Date(y, m, 1).getDay();
-  const daysIn   = new Date(y, m + 1, 0).getDate();
-  const prevDays = new Date(y, m, 0).getDate();
+  const firstDay    = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const prevMonthDays = new Date(y, m, 0).getDate();
 
-  // Preenche dias do mês anterior (cinza)
+  // 3.1) Preenche dias finais do mês anterior (inativos)
   for (let i = firstDay - 1; i >= 0; i--) {
-    grid.insertAdjacentHTML("beforeend", `<div class="day inactive">${prevDays - i}</div>`);
+    const div = document.createElement("div");
+    div.className = "day inactive";
+    div.textContent = prevMonthDays - i;
+    gridDias.appendChild(div);
   }
 
-  // Preenche dias deste mês
-  for (let d = 1; d <= daysIn; d++) {
-    const dateObj = new Date(y, m, d);
-    const iso     = dateObj.toISOString();
-    const hasFesta = allFestas.some(f =>
-      new Date(f.data_evento).toDateString() === dateObj.toDateString()
-    );
-    grid.insertAdjacentHTML("beforeend",
-      `<div class="day ${hasFesta ? "festa" : ""}" data-date="${iso}">${d}</div>`
-    );
+  // 3.2) Cria cada dia deste mês
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateObj   = new Date(y, m, d);
+    const isoFull   = dateObj.toISOString();
+    const dateSimple = isoFull.split("T")[0];
+
+    const div = document.createElement("div");
+    div.textContent = d;
+    // verifica se há festa nesta data (compara dateSimple)
+    const hasFesta = allFestas.some(f => f.dateSimple === dateSimple);
+    if (hasFesta) {
+      div.className = "day festa";
+      div.dataset.dateSimple = dateSimple;
+      // listener direto no elemento
+      div.addEventListener("click", () => {
+        const fest = allFestas.find(f => f.dateSimple === dateSimple);
+        if (fest) {
+          selectFesta(fest);
+          marcarDiaNoCalendar(dateSimple);
+          searchFestaInput.value = fest.text;
+        }
+      });
+    } else {
+      div.className = "day inactive";
+    }
+    gridDias.appendChild(div);
   }
 
-  // Preenche dias do próximo mês (cinza) para completar a grade
-  const fills = Math.ceil((firstDay + daysIn) / 7) * 7 - (firstDay + daysIn);
-  for (let i = 1; i <= fills; i++) {
-    grid.insertAdjacentHTML("beforeend", `<div class="day inactive">${i}</div>`);
+  // 3.3) Preenche dias iniciais do próximo mês (inativos) até completar a grade
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  const nextFill = totalCells - (firstDay + daysInMonth);
+  for (let i = 1; i <= nextFill; i++) {
+    const div = document.createElement("div");
+    div.className = "day inactive";
+    div.textContent = i;
+    gridDias.appendChild(div);
   }
 
-  calDiv.appendChild(grid);
+  calDiv.appendChild(gridDias);
 
-  // Navegação: mês anterior e próximo
-  calDiv.querySelector("#prev-month").onclick = () => {
+  // ▸ Botões de navegação de mês
+  header.querySelector("#prev-month").onclick = () => {
     currentCalendarDate.setMonth(m - 1);
     renderCalendar();
   };
-  calDiv.querySelector("#next-month").onclick = () => {
+  header.querySelector("#next-month").onclick = () => {
     currentCalendarDate.setMonth(m + 1);
     renderCalendar();
   };
 
-  // Clique em dia com festa
-  calDiv.querySelectorAll(".day.festa").forEach(el => {
-    el.onclick = () => {
-      const fest = allFestas.find(f =>
-        new Date(f.data_evento).toISOString() === el.dataset.date
-      );
-      if (fest) {
-        selectFesta(fest);
-        marcarDiaNoCalendar(new Date(fest.data_evento));
-        searchFestaInput.value = fest.text;
-      }
-    };
-  });
-
-  marcarDiaNoCalendar(new Date(dataEventoParam));
+  // ▸ Marca dia selecionado, se houver
+  marcarDiaNoCalendar(dataEventoParam ? dataEventoParam.split("T")[0] : null);
 }
 
 function formatMonthYear(m, y) {
-  const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                 "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const meses = [
+    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+  ];
   return `${meses[m]} ${y}`;
 }
 
-function marcarDiaNoCalendar(dateObj) {
-  document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
-  document.querySelectorAll(".day.festa").forEach(d => {
-    if (d.dataset.date === dateObj?.toISOString()) d.classList.add("selected");
+function marcarDiaNoCalendar(simpleDate) {
+  // remove destaque de qualquer .day.selected anterior
+  document.querySelectorAll("#calendar-container .day.selected").forEach(el => {
+    el.classList.remove("selected");
+  });
+  if (!simpleDate) return;
+  // encontra o dia.festa com data igual e adiciona .selected
+  document.querySelectorAll("#calendar-container .day.festa").forEach(el => {
+    if (el.dataset.dateSimple === simpleDate) {
+      el.classList.add("selected");
+    }
   });
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 4. Seleciona (ou recarrega) uma festa                              ║
+   ║ 4) Quando o usuário seleciona uma festa                           ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 async function selectFesta(f) {
   festaId         = f.id;
-  dataEventoParam = f.data_evento;
+  dataEventoParam = f.data_evento; // ISO completa
 
+  // ▸ Atualiza header (título da festa)
   headerFestaDiv.innerHTML = `<h2 class="festa-title">${f.text}</h2>`;
   festaInfoDiv.classList.remove("hidden");
 
+  // ▸ Carrega detalhes + resumo
   await loadFestaInfo(f);
-  await showCategories(festaId);
+
+  // ▸ Garante que “Local” e “Decoração” existam no BD
+  await ensureCategories(festaId);
+
+  // ▸ Busca e renderiza todos os itens agrupados por categoria
+  await fetchAndRenderChecklist(festaId);
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 5. Gera / carrega categorias Local, Decoração e Convites           ║
+   ║ 5) Garante que “Local” e “Decoração” existam em checklist_evento    ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
-async function showCategories(fid) {
-  currentCategory = null;
-  tasksSection.classList.add("hidden");
-  tasksGrid.innerHTML    = "";
-  categoryCont.innerHTML = "";
-  categoryCont.classList.remove("hidden");
-
+async function ensureCategories(fid) {
   const CATS = [
     { nome: "Local",     factory: checklistLocal },
-    { nome: "Decoração", factory: checklistDecoracao },
-    { nome: "Convites",  factory: checklistConvites }
+    { nome: "Decoração", factory: checklistDecoracao }
   ];
 
-  gruposGlobal = {};
+  const { data: existentes, error: errExist } = await supabase
+    .from("checklist_evento")
+    .select("categoria")
+    .eq("festa_id", fid);
+
+  if (errExist) {
+    console.error("Erro ao buscar categorias existentes:", errExist);
+    return;
+  }
+
+  const existentesSet = new Set(
+    (existentes || []).map(item => item.categoria.toLowerCase().trim())
+  );
 
   for (const { nome, factory } of CATS) {
-    // 5.1) Busca todas as tarefas já gravadas dessa categoria
-    let { data: tarefas, error } = await supabase
-      .from("checklist_evento")
-      .select("*")
-      .eq("festa_id", fid)
-      .eq("categoria", nome);
-
-    if (error) {
-      console.error(`Erro ao buscar ${nome}:`, error);
-      tarefas = [];
+    if (!existentesSet.has(nome.toLowerCase())) {
+      const tarefas = factory(fid);
+      const { error: errInsert } = await supabase
+        .from("checklist_evento")
+        .insert(tarefas);
+      if (errInsert) {
+        console.error(`Erro ao inserir categoria ${nome}:`, errInsert);
+      }
     }
-    console.log(`Categoria ‘${nome}’: tarefas buscadas =`, tarefas.length);
+  }
+}
 
-    // 5.2) Se não houver nenhuma, tenta inserir sem colisão
-    if (!tarefas?.length) {
-      console.log(`– Nenhuma tarefa encontrada para ${nome}. Executando safeInsert...`);
-      tarefas = await safeInsert(fid, factory(fid), nome);
-      console.log(`– safeInsert retornou ${tarefas.length} tarefas para ${nome}`);
-    }
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║ 6) Busca e renderiza todos os itens agrupados por categoria        ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+async function fetchAndRenderChecklist(fid) {
+  const { data: itens, error: errItens } = await supabase
+    .from("checklist_evento")
+    .select("*")
+    .eq("festa_id", fid)
+    .order("categoria", { ascending: true })
+    .order("ordem", { ascending: true });
 
-    // 5.3) Re-busca qualquer tarefa criada (para garantir consistência)
-    ({ data: tarefas } = await supabase
-      .from("checklist_evento")
-      .select("*")
-      .eq("festa_id", fid)
-      .eq("categoria", nome)
-    );
-    console.log(`– Depois da re-busca, ${tarefas?.length} tarefas restantes em ${nome}`);
-    gruposGlobal[nome] = tarefas || [];
+  if (errItens) {
+    console.error("Erro ao buscar itens do checklist:", errItens);
+    categoryCont.innerHTML = "<p>Erro ao carregar tarefas.</p>";
+    return;
   }
 
-  // 5.4) Atualiza o resumo geral “Faltam X tarefas”
-  updateResumoTarefas(Object.values(gruposGlobal).flat());
+  if (!itens || itens.length === 0) {
+    categoryCont.innerHTML = "<p>Este checklist não possui tarefas cadastradas.</p>";
+    return;
+  }
 
-  // 5.5) Cria um card para cada categoria na grade
-  CATS.forEach(({ nome }) => {
-    const card = buildCategoryCard(nome, gruposGlobal[nome]);
+  gruposGlobal = {};
+  itens.forEach(item => {
+    const cat = item.categoria.trim();
+    if (!gruposGlobal[cat]) {
+      gruposGlobal[cat] = [];
+    }
+    gruposGlobal[cat].push(item);
+  });
+
+  updateResumoTarefas(itens);
+
+  categoryCont.innerHTML = "";
+  Object.entries(gruposGlobal).forEach(([categoria, tarefas]) => {
+    const card = buildCategoryCard(categoria, tarefas);
     categoryCont.appendChild(card);
   });
-}
 
-/* ───────── Helper: insere tarefas sem colisão de `ordem` ───────── */
-async function safeInsert(fid, tarefasInit, nomeCat) {
-  let { data, error } = await supabase
-    .from("checklist_evento")
-    .insert(tarefasInit)
-    .select();
-
-  if (!error) return data; // inseriu normalmente
-
-  console.warn(`Colisão de ordem em ${nomeCat}. Renumerando…`);
-
-  // Busca maior ordem existente para essa festa
-  const { data: maxRow } = await supabase
-    .from("checklist_evento")
-    .select("ordem")
-    .eq("festa_id", fid)
-    .order("ordem", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const base = (maxRow?.ordem ?? 0) + 1;
-  const renum = tarefasInit.map((t, i) => ({ ...t, ordem: base + i }));
-
-  ({ data, error } = await supabase
-    .from("checklist_evento")
-    .insert(renum)
-    .select());
-
-  if (error) {
-    console.error(`Falha final ao inserir ${nomeCat}:`, error);
-    return [];
-  }
-  return data;
+  categoryCont.classList.remove("hidden");
+  tasksSection.classList.add("hidden");
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 6. Funções auxiliares de texto                                     ║
+   ║ 7) Normalização de texto                                           ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
-const normalize = s => s
-  .toLowerCase()
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .trim();
-
-const titleCase = s =>
-  s.toLowerCase().replace(/(?:^|\s)\S/g, c => c.toUpperCase());
+function normalize(s) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 7. Atualiza texto “Faltam X tarefas”                                ║
+   ║ 8) Atualiza texto “Faltam X tarefas”                                ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
-function updateResumoTarefas(todas) {
-  const pend = todas.filter(t => !t.concluido).length;
-  const txt  = pend
-    ? `Faltam ${pend} tarefa${pend > 1 ? "s" : ""} para concluir`
+function updateResumoTarefas(allItems) {
+  const restantes = allItems.filter(t => !t.concluido).length;
+  const texto = restantes
+    ? `Faltam ${restantes} tarefa${restantes > 1 ? "s" : ""} para concluir`
     : "Todas as tarefas concluídas";
 
   const span = festaInfoDiv.querySelector(".texto-resumo");
-  if (span) span.textContent = txt;
+  if (span) {
+    span.textContent = texto;
+  }
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 8. Geração dos “cards” de categoria e tarefas                      ║
+   ║ 9) Cria card de categoria na tela                                   ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 function buildCategoryCard(nome, tarefas) {
-  const key   = normalize(nome);
-  const pend  = tarefas.filter(t => !t.concluido).length;
-  const prog  = pend
-    ? `Resta${pend > 1 ? "m" : ""} ${pend} tarefa${pend > 1 ? "s" : ""}`
+  const keyLower = normalize(nome);
+  const pendentes = tarefas.filter(t => !t.concluido).length;
+  const progresso = pendentes
+    ? `Resta${pendentes > 1 ? "m" : ""} ${pendentes} tarefa${pendentes > 1 ? "s" : ""}`
     : "Todas as tarefas concluídas";
 
   let iconClass = "fa-box-open";
-  if (key === "local")     iconClass = "fa-map-location-dot";
-  if (key === "decoracao") iconClass = "fa-palette";
-  if (key === "convites")  iconClass = "fa-envelope";
+  if (keyLower === "local") {
+    iconClass = "fa-map-location-dot";
+  }
+  if (keyLower === "decoração" || keyLower === "decoracao") {
+    iconClass = "fa-palette";
+  }
 
   const card = document.createElement("div");
   card.className = "category-card";
@@ -358,20 +391,30 @@ function buildCategoryCard(nome, tarefas) {
   card.innerHTML = `
     <i class="fa-solid ${iconClass}"></i>
     <h2>${nome}</h2>
-    <p class="progress">${prog}</p>`;
+    <p class="progress">${progresso}</p>
+  `;
 
-  card.onclick = () => {
+  card.addEventListener("click", () => {
+    // Remove todos os destaques anteriores
+    document.querySelectorAll(".category-card.selected").forEach(c => {
+      c.classList.remove("selected");
+    });
+
     if (currentCategory === nome && !tasksSection.classList.contains("hidden")) {
-      // Se já está aberto, fecha a seção de tarefas
+      // Se já aberto, fecha e limpa título inferior
       tasksSection.classList.add("hidden");
       categoryCont.classList.remove("hidden");
       tasksGrid.innerHTML = "";
+      tasksHeader.textContent = "";   // limpa título da seção de tarefas
       currentCategory = null;
+      card.classList.remove("selected");
     } else {
+      // Destaca este card e mostra tarefas
+      card.classList.add("selected");
       currentCategory = nome;
-      showTasks(nome, tarefas);
+      showTasks(nome, gruposGlobal[nome]);
     }
-  };
+  });
 
   return card;
 }
@@ -383,72 +426,91 @@ function showTasks(categoria, tarefas) {
   tasksHeader.textContent = categoria;
   tasksGrid.innerHTML = "";
 
-  tarefas.forEach(item => tasksGrid.appendChild(buildTaskCard(item)));
+  tarefas.forEach(item => {
+    const taskCard = buildTaskCard(item);
+    tasksGrid.appendChild(taskCard);
+  });
 }
 
 function buildTaskCard(item) {
   const card = document.createElement("div");
   card.className = "task-card";
-  if (item.concluido) card.classList.add("completed");
+  if (item.concluido) {
+    card.classList.add("completed");
+  }
   card.classList.add(`priority-${normalize(item.prioridade)}`);
 
-  // Checkbox
+  // ► Checkbox
   const chk = document.createElement("input");
   chk.type = "checkbox";
   chk.checked = item.concluido;
-  chk.onchange = async () => {
+  chk.addEventListener("change", async () => {
     await updateItem(item.id, { concluido: chk.checked });
     card.classList.toggle("completed", chk.checked);
     atualizarProgressoCategoria(item.categoria);
-  };
+  });
   card.appendChild(chk);
 
-  // Descrição e observação
-  const info = document.createElement("div");
-  info.className = "task-info";
-  info.insertAdjacentHTML("beforeend", `<p class="task-desc">${item.descricao}</p>`);
+  // ► Descrição e observação
+  const infoDiv = document.createElement("div");
+  infoDiv.className = "task-info";
+  infoDiv.insertAdjacentHTML("beforeend", `<p class="task-desc">${item.descricao}</p>`);
   if (item.observacao) {
-    info.insertAdjacentHTML("beforeend", `<p class="task-note">${item.observacao}</p>`);
+    infoDiv.insertAdjacentHTML("beforeend", `<p class="task-note">${item.observacao}</p>`);
   }
 
-  // Ícone + textarea de anotação pessoal
+  // ► Ícone de anotação + textarea oculto
   const noteIcon = document.createElement("i");
   noteIcon.className = "fa-regular fa-note-sticky icon-note";
+  noteIcon.title = "Adicionar anotação";
+
   const ta = document.createElement("textarea");
   ta.className = "note-edit";
   ta.placeholder = "Digite sua anotação aqui…";
   ta.value = item.mensagem_pessoal || "";
-  ta.onblur = () => updateItem(item.id, { mensagem_pessoal: ta.value });
+  ta.addEventListener("blur", () => {
+    updateItem(item.id, { mensagem_pessoal: ta.value });
+  });
   ta.style.display = "none";
 
-  noteIcon.onclick = () => {
+  noteIcon.addEventListener("click", () => {
     ta.style.display = ta.style.display === "none" ? "block" : "none";
-    if (ta.style.display === "block") ta.focus();
-  };
+    if (ta.style.display === "block") {
+      ta.focus();
+    }
+  });
 
-  info.appendChild(noteIcon);
-  info.appendChild(ta);
-  card.appendChild(info);
+  infoDiv.appendChild(noteIcon);
+  infoDiv.appendChild(ta);
+  card.appendChild(infoDiv);
 
-  // Ocultar tarefas antes de X dias (se configurado)
+  // ► Se item.ocultar_antes = true e dataEventoParam, esconde antes da data
   if (item.ocultar_antes && dataEventoParam) {
     const ev = new Date(dataEventoParam);
     ev.setDate(ev.getDate() - (item.dias_antes_evento || 0));
-    if (Date.now() < ev.getTime()) card.style.display = "none";
+    if (Date.now() < ev.getTime()) {
+      card.style.display = "none";
+    }
   }
 
   return card;
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 9. Botão “Voltar às Categorias”, updateItem e progresso             ║
+   ║ 10) Botão “Voltar às Categorias”, updateItem e progresso           ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
-btnBack.onclick = () => {
+btnBack.addEventListener("click", () => {
+  // Limpa todos os destaques de cards de categoria
+  document.querySelectorAll(".category-card.selected").forEach(c => {
+    c.classList.remove("selected");
+  });
+
   tasksSection.classList.add("hidden");
   categoryCont.classList.remove("hidden");
   tasksGrid.innerHTML = "";
+  tasksHeader.textContent = "";  // limpa título que ficava exibido
   currentCategory = null;
-};
+});
 
 async function updateItem(id, fields) {
   const { error } = await supabase
@@ -472,23 +534,24 @@ async function atualizarProgressoCategoria(cat) {
 
   document.querySelectorAll(".category-card").forEach(card => {
     if (card.dataset.categoria === cat) {
-      card.querySelector(".progress").textContent = prog;
+      const p = card.querySelector(".progress");
+      if (p) p.textContent = prog;
     }
   });
 
-  const { data: all } = await supabase
+  const { data: allItens } = await supabase
     .from("checklist_evento")
     .select("concluido")
     .eq("festa_id", festaId);
-  if (all) updateResumoTarefas(all);
+  if (allItens) updateResumoTarefas(allItens);
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 10. Carrega detalhes resumidos da festa                             ║
+   ║ 11) Carrega detalhes resumidos da festa                             ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 async function loadFestaInfo(f) {
   festaId         = f.id;
-  dataEventoParam = f.data_evento;
+  dataEventoParam = f.data_evento; // ISO completa
 
   const { data: festa, error: errFesta } = await supabase
     .from("festas")
@@ -506,14 +569,14 @@ async function loadFestaInfo(f) {
     .eq("festa_id", festaId)
     .single();
 
-  let tipoNome = "-";
+  let nomeTipo = "-";
   if (pref?.tipo_evento_id) {
     const { data: tipoEvt } = await supabase
       .from("tipos_evento")
       .select("nome")
       .eq("id", pref.tipo_evento_id)
       .single();
-    if (tipoEvt) tipoNome = tipoEvt.nome;
+    if (tipoEvt) nomeTipo = tipoEvt.nome;
   }
 
   const dataBR  = new Date(festa.data_evento).toLocaleDateString("pt-BR");
@@ -537,22 +600,50 @@ async function loadFestaInfo(f) {
       <span class="texto-resumo">Calculando tarefas…</span>
     </p>
     <div class="info-grid">
-      <div class="info-item"><i class="fa-solid fa-calendar-days"></i><span class="label">Data:</span><span class="value">${dataBR}</span></div>
-      <div class="info-item"><i class="fa-solid fa-clock"></i><span class="label">Duração:</span><span class="value">${pref?.duracao_horas ? pref.duracao_horas + "h" : "-"}</span></div>
-      <div class="info-item"><i class="fa-solid fa-users"></i><span class="label">Convidados:</span><span class="value">${festa.convidados}</span></div>
-      <div class="info-item"><i class="fa-solid fa-cake-candles"></i><span class="label">Evento:</span><span class="value">${tipoNome}</span></div>
-      <div class="info-item"><i class="fa-solid fa-tags"></i><span class="label">Categorias:</span><span class="value">${catsTxt}</span></div>
-      <div class="info-item"><i class="fa-solid fa-utensils"></i><span class="label">Prato:</span><span class="value">${pratoTxt}</span></div>
-      <div class="info-item"><i class="fa-solid fa-glass-whiskey"></i><span class="label">Bebidas:</span><span class="value">${bebTxt}</span></div>
+      <div class="info-item">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span class="label">Data:</span>
+        <span class="value">${dataBR}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-clock"></i>
+        <span class="label">Duração:</span>
+        <span class="value">${pref?.duracao_horas ? pref.duracao_horas + "h" : "-"}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-users"></i>
+        <span class="label">Convidados:</span>
+        <span class="value">${festa.convidados}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-cake-candles"></i>
+        <span class="label">Evento:</span>
+        <span class="value">${nomeTipo}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-tags"></i>
+        <span class="label">Categorias:</span>
+        <span class="value">${catsTxt}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-utensils"></i>
+        <span class="label">Prato:</span>
+        <span class="value">${pratoTxt}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-glass-whiskey"></i>
+        <span class="label">Bebidas:</span>
+        <span class="value">${bebTxt}</span>
+      </div>
     </div>`;
 
-  const { data: all } = await supabase
+  const { data: allItens } = await supabase
     .from("checklist_evento")
     .select("concluido")
     .eq("festa_id", festaId);
-  if (all) updateResumoTarefas(all);
+  if (allItens) updateResumoTarefas(allItens);
 }
 
 /* ===================================================================== *
- *  Fim do Checklist.js                                                  *
+ *  Fim de Checklist.js                                                  *
  * ===================================================================== */
