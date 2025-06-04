@@ -284,18 +284,35 @@ body {
 /* ===== Grid Utilitário ===== */
 .grid {
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem; /* espaçamento reduzido para TODOS os grids (tarefas, calendários etc.) */
 }
+
+/* ===== Ajustes ESPECÍFICOS para .category-container ===== */
 @media (min-width: 600px) {
   .category-container {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    justify-content: center;
-  }
-  .tasks-grid {
+    /* 1) Grid mais “apertado”: cada coluna terá ao menos 250px de largura 
+       e, se couberem mais, as espalhará uniformemente */
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     justify-content: center;
+
+    /* 2) Gap menor entre cards de categoria (ainda mais compacto) */
+    gap: 0.5rem;
+
+    /* 3) Margem inferior levemente reduzida */
+    margin-bottom: 0.75rem;
+  }
+
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    justify-content: center;
+
+    /* gap reduzido entre cards de tarefa */
+    gap: 0.5rem;
   }
 }
+
 @media (max-width: 599px) {
   .grid {
     grid-template-columns: 1fr;
@@ -305,7 +322,7 @@ body {
 /* ===== Cards de Categoria ===== */
 .category-container {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem; /* pode ser ajustado se quiser ainda mais próximo da seção abaixo */
 }
 .category-card {
   background: var(--bg-card);

@@ -1,14 +1,13 @@
 /* ===================================================================== *
- *  Checklist.js – FazFestas (v4.1 • 05 jun 2025)                         *
- *  – Corrige clique em datas: usa “YYYY-MM-DD” para comparação             *
- *  – Destaca adequadamente o dia selecionado                              *
- *  – Remove títulos de checklist ao fechar                                 *
- *  – Fluxo de inserção e renderização simplificado                         *
+ *  Checklist.js – FazFestas (v4.2 • 05 jun 2025) – Versão com Convites  *
+ *  e Mídia adicionados                                                  *
+ *  
+ *  - Carrega categorias dinamicamente via import() de módulos JS
+ *  - Remove campo "cor", compatibilizando com o esquema atual do BD
+ *  - Novas categorias: Convites e Mídia
  * ===================================================================== */
 
-import supabase               from "../compartilhado/supabaseClient.js";
-import { checklistLocal }     from "../compartilhado/checklist/local.js";
-import { checklistDecoracao } from "../compartilhado/checklist/decoracao.js";
+import supabase from "../compartilhado/supabaseClient.js";
 
 /* ───────────────────── Elementos DOM ───────────────────── */
 const headerFestaDiv   = document.getElementById("header-festa");
@@ -22,11 +21,32 @@ const searchFestaInput = document.getElementById("search-festa-input");
 const festasDatalist   = document.getElementById("festas-list");
 
 /* ───────────────────── Estado Global ───────────────────── */
-let allFestas       = [];  // cada item terá { id, nome, data_evento, text, dateSimple }
+let allFestas       = [];  // { id, nome, data_evento, text, dateSimple }
 let festaId         = null;
 let dataEventoParam = null; // string ISO completa
 let gruposGlobal    = {};
 let currentCategory = null;
+
+/* ─────────────────── Configuração de Categorias ───────────────────
+ * Cada objeto nesta lista indica:
+ *  - nome: nome exato da categoria (como será gravado no BD)
+ *  - module: caminho relativo ao arquivo que exporta a factory
+ *            Exemplo: "local.js" => export const checklistLocal = festaId => [...]
+ * Para adicionar futura categoria, basta criar arquivo em
+ * public/compartilhado/checklist e adicionar aqui:
+ *
+ *  { nome: "Novo Tema", module: "novoTema.js" }
+ *
+ * As novas categorias "Convites" e "Mídia" foram adicionadas:
+ *  - public/compartilhado/checklist/convites.js
+ *  - public/compartilhado/checklist/midia.js
+ * ==================================================================== */
+const categoryConfigs = [
+  { nome: "Local",     module: "local.js" },
+  { nome: "Decoração", module: "decoracao.js" },
+  { nome: "Convites",  module: "convites.js" },
+  { nome: "Mídia",     module: "midia.js" }
+];
 
 /* ───────── Remove overlay/loader (toast.js) se existente ───────── */
 function hideLoader() {
@@ -255,7 +275,7 @@ async function selectFesta(f) {
   // ▸ Carrega detalhes + resumo
   await loadFestaInfo(f);
 
-  // ▸ Garante que “Local” e “Decoração” existam no BD
+  // ▸ Garante que todas as categorias configuradas existam no BD
   await ensureCategories(festaId);
 
   // ▸ Busca e renderiza todos os itens agrupados por categoria
@@ -263,14 +283,10 @@ async function selectFesta(f) {
 }
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
-   ║ 5) Garante que “Local” e “Decoração” existam em checklist_evento    ║
+   ║ 5) Garante que todas as categorias definidas existam no BD         ║
    ╚═══════════════════════════════════════════════════════════════════╝ */
 async function ensureCategories(fid) {
-  const CATS = [
-    { nome: "Local",     factory: checklistLocal },
-    { nome: "Decoração", factory: checklistDecoracao }
-  ];
-
+  // Busca categorias existentes já criadas para esta festa
   const { data: existentes, error: errExist } = await supabase
     .from("checklist_evento")
     .select("categoria")
@@ -282,17 +298,33 @@ async function ensureCategories(fid) {
   }
 
   const existentesSet = new Set(
-    (existentes || []).map(item => item.categoria.toLowerCase().trim())
+    (existentes || []).map(item => item.categoria.trim().toLowerCase())
   );
 
-  for (const { nome, factory } of CATS) {
-    if (!existentesSet.has(nome.toLowerCase())) {
-      const tarefas = factory(fid);
-      const { error: errInsert } = await supabase
-        .from("checklist_evento")
-        .insert(tarefas);
-      if (errInsert) {
-        console.error(`Erro ao inserir categoria ${nome}:`, errInsert);
+  // Para cada configuração de categoria, se não existir, importa o módulo e insere
+  for (const { nome, module } of categoryConfigs) {
+    const chaveNorm = nome.trim().toLowerCase();
+    if (!existentesSet.has(chaveNorm)) {
+      try {
+        // Carrega dinamicamente o módulo (ex.: "../compartilhado/checklist/local.js")
+        const módulo = await import(`../compartilhado/checklist/${module}`);
+        // Deriva o nome da factory: ex: "local.js" → "checklistLocal"
+        const factoryName = Object.keys(módulo).find(k =>
+          k.toLowerCase().includes("checklist")
+        );
+        if (factoryName && typeof módulo[factoryName] === "function") {
+          const tarefas = módulo[factoryName](fid);
+          const { error: errInsert } = await supabase
+            .from("checklist_evento")
+            .insert(tarefas);
+          if (errInsert) {
+            console.error(`Erro ao inserir categoria ${nome}:`, errInsert);
+          }
+        } else {
+          console.warn(`Factory não encontrada em módulo ${module}`);
+        }
+      } catch (errImport) {
+        console.error(`Falha ao importar módulo ${module}:`, errImport);
       }
     }
   }
@@ -320,6 +352,7 @@ async function fetchAndRenderChecklist(fid) {
     return;
   }
 
+  // Agrupa itens por categoria em um objeto { categoria: [itens...] }
   gruposGlobal = {};
   itens.forEach(item => {
     const cat = item.categoria.trim();
@@ -331,6 +364,7 @@ async function fetchAndRenderChecklist(fid) {
 
   updateResumoTarefas(itens);
 
+  // Limpa container de categorias e adiciona um card para cada grupo
   categoryCont.innerHTML = "";
   Object.entries(gruposGlobal).forEach(([categoria, tarefas]) => {
     const card = buildCategoryCard(categoria, tarefas);
@@ -377,12 +411,16 @@ function buildCategoryCard(nome, tarefas) {
     ? `Resta${pendentes > 1 ? "m" : ""} ${pendentes} tarefa${pendentes > 1 ? "s" : ""}`
     : "Todas as tarefas concluídas";
 
+  // Escolhe ícone baseado no nome (pode expandir o mapeamento aqui)
   let iconClass = "fa-box-open";
   if (keyLower === "local") {
     iconClass = "fa-map-location-dot";
-  }
-  if (keyLower === "decoração" || keyLower === "decoracao") {
+  } else if (keyLower === "decoração" || keyLower === "decoracao") {
     iconClass = "fa-palette";
+  } else if (keyLower === "convites") {
+    iconClass = "fa-envelope-open-text";
+  } else if (keyLower === "mídia" || keyLower === "midia") {
+    iconClass = "fa-photo-video";
   }
 
   const card = document.createElement("div");
