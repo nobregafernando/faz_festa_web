@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Painel – FazFestas</title>
 
-       <!-- Ícones -->  
+  <!-- Ícones -->
   <link rel="icon" type="image/x-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
   <link rel="icon" type="image/png" sizes="32x32" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
   <link rel="icon" type="image/png" sizes="16x16" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
@@ -14,15 +14,8 @@
   <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
 
   <!-- Fontes / Ícones -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    type="text/css"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" type="text/css"/>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -37,7 +30,6 @@
 <body>
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- Conteúdo Principal -->
   <main class="app-main painel-container">
     <!-- BANNER SLIDER -->
     <section class="banner-slider">
@@ -101,27 +93,25 @@
     <section class="quick-actions">
       <h2>Ações Rápidas</h2>
       <div class="action-carousel">
-        <article class="action-card">
+        <a class="action-card" href="festas.html">
           <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Ffestas.png?alt=media&token=13a787c0-01b8-4187-ad2c-caa09ede8437" alt="Festas"/>
           <span>Festas</span>
-        </article>
-        <article class="action-card">
+        </a>
+        <a class="action-card" href="checklist.html">
           <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fchecklist.png?alt=media&token=afc771ed-9a65-4ff6-bad6-a607b68e38f5" alt="Checklist"/>
           <span>Checklist</span>
-        </article>
-        <article class="action-card">
-          <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fstat-parceiros.png?alt=media&token=b6444339-e5d4-4f4c-96c3-2c8cb16112d7" alt="Parceiros"/>
-          <span>Parceiros</span>
-        </article>
-        <article class="action-card">
+        </a>
+        <a class="action-card" href="convites.html">
+          <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fstat-parceiros.png?alt=media&token=b6444339-e5d4-4f4c-96c3-2c8cb16112d7" alt="Convites"/>
+          <span>Convites</span>
+        </a>
+        <a class="action-card" href="cardápios.html">
           <img class="card-img" src="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/paginas%2Fcard%C3%A1pios.png?alt=media&token=7eb2fc57-7fe2-4f9b-b053-236683a38ae3" alt="Cardápios"/>
           <span>Cardápios</span>
-        </article>
+        </a>
       </div>
     </section>
 
-    <!-- BOTÃO FLUTUANTE -->
-    <button id="fab"><i class="fa-solid fa-plus"></i></button>
   </main>
 
   <!-- Scripts de navegação e lógica -->

@@ -1,3 +1,4 @@
+<!-- convites.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,48 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gerador de Convites – FazFestas</title>
 
-  <!-- Ícones (apontando para o Storage) -->  
-  <link rel="icon" type="image/x-icon"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
-  <link rel="icon" type="image/png" sizes="32x32"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
-  <link rel="icon" type="image/png" sizes="16x16"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
-  <link rel="icon" type="image/png" sizes="192x192"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
-  <link rel="icon" type="image/png" sizes="512x512"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
-  <link rel="apple-touch-icon"
-        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
+    <link rel="icon" type="image/x-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
+  <link rel="icon" type="image/png" sizes="512x512" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
+  <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
 
   <!-- Fontes / Ícones -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Great+Vibes&family=Playfair+Display&family=Dancing+Script&family=Pacifico&family=Roboto&family=Quicksand&family=Caveat&family=Raleway&family=Courgette&family=Indie+Flower&display=swap"
-    rel="stylesheet"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    type="text/css"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Lora:wght@400;600&family=Great+Vibes&family=Playfair+Display&family=Dancing+Script&family=Pacifico&family=Roboto&family=Quicksand&family=Caveat&family=Raleway&family=Courgette&family=Indie+Flower&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <!-- CSS desta página (mesma pasta “paginas”) -->
-  <link rel="stylesheet" href="convites.css" />
+  <!-- CSS específico da página -->
+  <link rel="stylesheet" href="convites.css">
 </head>
+
 <body>
-  <!-- Toast container (mesmo toast.js usado no Checklist) -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <main class="app-main">
-    <!-- 1) Título + informação básica do evento -->
     <h1 class="section-title">Gerador de Convites</h1>
+
+    <!-- Seleção de Festa -->
+    <div class="festa-selector">
+      <label for="selectFesta">Selecione a Festa:</label>
+      <select id="selectFesta"></select>
+    </div>
+
     <div id="evento-info" class="evento-info"></div>
 
-    <!-- 2) Container principal (Editor + Preview) -->
     <div class="container">
-      <!-- 2.1) EDITOR -->
+      <!-- Editor -->
       <div class="editor">
-        <!-- Seletor de tema (carrossel de miniaturas) -->
+        <!-- TODO: mantém exatamente todo o conteúdo do seu HTML original de editor -->
         <label>Imagem de Fundo</label>
         <div class="image-carousel">
           <button id="thumbPrev">&lt;</button>
@@ -56,55 +48,45 @@
           <button id="thumbNext">&gt;</button>
         </div>
 
-        <!-- Upload customizado -->
         <label for="uploadImagem" class="file-btn">Escolher Imagem</label>
-        <input type="file" id="uploadImagem" accept="image/*" />
+        <input type="file" id="uploadImagem" accept="image/*">
 
-        <!-- Campos de texto do convite -->
         <label for="evento">Título (Evento)</label>
         <div class="input-with-controls">
-          <input type="text" id="evento" placeholder="Casamento / 15 anos" required />
+          <input id="evento" type="text" placeholder="Casamento / 15 anos" required>
           <div class="font-controls">
-            <button type="button" id="decTitulo" class="font-btn">
-              <i class="fa fa-minus"></i>
-            </button>
+            <button id="decTitulo" type="button" class="font-btn"><i class="fa fa-minus"></i></button>
             <span id="displayTituloSize">36</span>
-            <button type="button" id="incTitulo" class="font-btn">
-              <i class="fa fa-plus"></i>
-            </button>
+            <button id="incTitulo" type="button" class="font-btn"><i class="fa fa-plus"></i></button>
           </div>
         </div>
-        <input type="hidden" id="tamanhoTitulo" value="36" />
+        <input type="hidden" id="tamanhoTitulo" value="36">
 
         <label for="fonteTitulo">Fonte do Título</label>
         <select id="fonteTitulo"></select>
 
         <label for="subtitulo">Subtítulo</label>
         <div class="input-with-controls">
-          <input type="text" id="subtitulo" placeholder="Ex.: João & Maria" required />
+          <input id="subtitulo" type="text" placeholder="Ex.: João & Maria" required>
           <div class="font-controls">
-            <button type="button" id="decSubtitulo" class="font-btn">
-              <i class="fa fa-minus"></i>
-            </button>
+            <button id="decSubtitulo" type="button" class="font-btn"><i class="fa fa-minus"></i></button>
             <span id="displaySubtituloSize">42</span>
-            <button type="button" id="incSubtitulo" class="font-btn">
-              <i class="fa fa-plus"></i>
-            </button>
+            <button id="incSubtitulo" type="button" class="font-btn"><i class="fa fa-plus"></i></button>
           </div>
         </div>
-        <input type="hidden" id="tamanhoSubtitulo" value="42" />
+        <input type="hidden" id="tamanhoSubtitulo" value="42">
 
         <label for="fonteSubtitulo">Fonte do Subtítulo</label>
         <select id="fonteSubtitulo"></select>
 
         <label for="data">Data</label>
-        <input type="date" id="data" required />
+        <input id="data" type="date" required>
 
         <label for="hora">Horário</label>
-        <input type="time" id="hora" required />
+        <input id="hora" type="time" required>
 
         <label for="local">Local</label>
-        <input type="text" id="local" placeholder="Buffet Acrópolis" required />
+        <input id="local" type="text" placeholder="Buffet Acrópolis" required>
 
         <label for="endereco">Endereço</label>
         <textarea id="endereco" placeholder="Av. Tiradentes, 728&#10;Campo Grande/MS" required></textarea>
@@ -113,42 +95,50 @@
         <textarea id="mensagem" placeholder="Esperamos você para celebrar esse dia especial!" required></textarea>
 
         <label>Cor do Texto</label>
-        <div class="color-options" id="predefinedColors"></div>
+        <div id="predefinedColors" class="color-options"></div>
 
         <label for="colorPicker">Paleta</label>
-        <input type="color" id="colorPicker" value="#ffffff" />
-        <input type="hidden" id="corTexto" value="#ffffff" />
+        <input id="colorPicker" type="color" value="#ffffff">
+        <input id="corTexto" type="hidden" value="#ffffff">
 
         <button id="downloadBtn">Salvar Convite</button>
       </div>
 
-      <!-- 2.2) PREVIEW -->
-      <div class="preview-box" id="convitePreview">
-        <div class="blur-bg" id="blurBg"></div>
-        <div class="panel" id="panel"></div>
+      <!-- Preview -->
+      <div id="convitePreview" class="preview-box">
+        <div id="blurBg" class="blur-bg"></div>
+        <div id="panel" class="panel"></div>
       </div>
     </div>
 
-    <!-- 3) Lista de Convites Gerados para este evento -->
     <section id="generated-invites" class="generated-invites">
       <h2>Convites Gerados para este Evento</h2>
       <div id="invites-list" class="invites-list"></div>
     </section>
   </main>
 
-  <!-- 4) Scripts (que utilizam caminhos relativos, pois estamos em “paginas”) -->
+  <!-- Modal de Visualização / Exclusão -->
+  <div id="inviteModal" class="invite-modal hidden">
+    <div class="modal-content">
+      <span id="modalClose" class="modal-close">&times;</span>
+      <img id="modalImg" src="" alt="Convite ampliado" />
+      <button id="modalDelete" class="btn-delete-modal"><i class="fa fa-trash"></i> Excluir</button>
+    </div>
+  </div>
 
-  <!-- a) Supabase Client (relativo a /public/compartilhado) -->
+  <!-- Supabase -->
   <script type="module" src="../compartilhado/supabaseClient.js"></script>
 
-  <!-- b) Firebase SDKs (podem ficar inline para expor objetos globais) -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import {
       getStorage,
       ref as storageRef,
       uploadBytes,
-      getDownloadURL
+      getDownloadURL,
+      deleteObject,
+      listAll
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
     import {
       getDatabase,
@@ -158,38 +148,38 @@
       set
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // Expondo globalmente
     window.initializeApp  = initializeApp;
     window.getStorage     = getStorage;
     window.storageRef     = storageRef;
     window.uploadBytes    = uploadBytes;
     window.getDownloadURL = getDownloadURL;
+    window.deleteObject   = deleteObject;
+    window.listAll        = listAll;
     window.getDatabase    = getDatabase;
     window.dbRef          = dbRef;
     window.push           = push;
     window.onValue        = onValue;
     window.set            = set;
 
-    // Config Firebase exatamente igual à usada no Checklist
     window.firebaseConfig = {
       apiKey:            "AIzaSyBCXGROCEjPw2AKwrkSrvJwoyT0eX5ZiDk",
       authDomain:        "fazfestasapp.firebaseapp.com",
       databaseURL:       "https://fazfestasapp-default-rtdb.firebaseio.com",
       projectId:         "fazfestasapp",
-      storageBucket:     "fazfestasapp.appspot.com",  /* Observe: bucket correto */
+      storageBucket:     "fazfestasapp.appspot.com",
       messagingSenderId: "587597050441",
       appId:             "1:587597050441:web:95aa6d63f73e3073ca0598",
       measurementId:     "G-SNG49SH2YB"
     };
   </script>
 
-  <!-- c) html2canvas (importa globalment para window.html2canvas) -->
+  <!-- html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-  <!-- d) Script do Gerador de Convites (mesma pasta “paginas”) -->
+  <!-- Script principal da página -->
   <script type="module" src="convites.js"></script>
 
-  <!-- e) Menu superior/inferior, toast e acessibilidade (relativos) -->
+  <!-- Componentes compartilhados -->
   <script type="module" src="../compartilhado/menu-superior.js"></script>
   <script src="../compartilhado/menu-inferior.js"></script>
   <script src="../compartilhado/toast.js"></script>

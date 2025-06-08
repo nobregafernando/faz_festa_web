@@ -1,511 +1,454 @@
 // convites.js
-
-/**
- * Este script faz:
- * 1) Lê festaId da query string (?festaId=...)
- * 2) Busca nome e data do evento no Supabase → exibe em #evento-info
- * 3) Inicializa Firebase (Storage + Realtime Database)
- * 4) Carrega miniaturas de temas (images[]) → exibe carrossel
- * 5) Permite upload customizado de imagem
- * 6) Permite editar texto/fonte/tamanho/cores em tempo real (updatePreview)
- * 7) Salva convite via html2canvas → upload ao Firebase Storage
- *    → grava a URL no Realtime Database em convites/{festaId}/
- * 8) Escuta mudanças em convites/{festaId}/ → exibe automaticamente miniaturas
- */
+// FazFestas – Gerador de Convites
+// versão 2025-06-07 (com seleção de festa, modal, exclusão, preview, download e upload)
+// -----------------------------------------------------------
 
 import supabase from "../compartilhado/supabaseClient.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-// ─────────────────────────── Variáveis Globais ──────────────────────────
+// html2canvas é carregado via <script> no HTML
 
-// Lista de imagens-tema padrão
-const images = [
-  "https://i.postimg.cc/fRXmZ8sq/0.jpg",
-  "https://i.postimg.cc/HnPqdQ53/1.webp",
-  "https://i.postimg.cc/4dwdvSkd/2.jpg",
-  "https://i.postimg.cc/J4CrD8Bq/3.jpg",
-  "https://i.postimg.cc/qMGTN3rJ/4.jpg",
-  "https://i.postimg.cc/ry16HrK1/5.jpg",
-  "https://i.postimg.cc/k4ycQqgb/6.jpg",
-  "https://i.postimg.cc/fL5c3C87/7.jpg",
-  "https://i.postimg.cc/nrCDXJjZ/8.jpg",
-  "https://i.postimg.cc/XvLGxJ94/9.jpg",
-  "https://i.postimg.cc/K8y12LNm/10.jpg",
-  "https://i.postimg.cc/NGSbvgzQ/11.jpg",
-  "https://i.postimg.cc/JnBDNWcQ/12.jpg",
-  "https://i.postimg.cc/RC7q4dPq/13.jpg",
-  "https://i.postimg.cc/Kj8XXmqP/14.jpg",
-  "https://i.postimg.cc/SKFwS61N/15.jpg",
-  "https://i.postimg.cc/X7tPLKbc/16.jpg",
-  "https://i.postimg.cc/QNFGqd7D/17.jpg",
-  "https://i.postimg.cc/Y25VffkN/18.jpg"
-];
-let currentTheme = 0;   // índice da lista ‘images’, ou "upload" para imagem custom
+/* ───── 1. Configuração Firebase ───── */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBCXGROCEjPw2AKwrkSrvJwoyT0eX5ZiDk",
+  authDomain:        "fazfestasapp.firebaseapp.com",
+  databaseURL:       "https://fazfestasapp-default-rtdb.firebaseio.com",
+  projectId:         "fazfestasapp",
+  storageBucket:     "fazfestasapp.firebasestorage.app",
+  messagingSenderId: "587597050441",
+  appId:             "1:587597050441:web:95aa6d63f73e3073ca0598",
+  measurementId:     "G-SNG49SH2YB"
+};
+const fbApp     = initializeApp(firebaseConfig);
+const fbStorage = getStorage(fbApp);
 
-// Referências DOM (Editor + Preview)
-const thumbnailsWrapper = document.querySelector('.thumbnails-wrapper');
-const thumbnailsContainer = document.getElementById('thumbnails');
-const thumbPrevBtn = document.getElementById('thumbPrev');
-const thumbNextBtn = document.getElementById('thumbNext');
+// Debug no console
+window._fbStorage  = fbStorage;
+window._storageRef = storageRef;
+window._listAll    = listAll;
 
-const eventoInput       = document.getElementById('evento');
-const subtituloInput    = document.getElementById('subtitulo');
-const dataInput         = document.getElementById('data');
-const horaInput         = document.getElementById('hora');
-const localInput        = document.getElementById('local');
-const enderecoInput     = document.getElementById('endereco');
-const mensagemInput     = document.getElementById('mensagem');
+/* ───── 2. Estado Global ───── */
+let uid = "anon";
+let festaId = null;
+let currentTheme = 0;
+let modalCurrentPath = "";
 
-const decTituloBtn      = document.getElementById('decTitulo');
-const incTituloBtn      = document.getElementById('incTitulo');
-const displayTituloSize = document.getElementById('displayTituloSize');
-const hiddenTituloSize  = document.getElementById('tamanhoTitulo');
+/* ───── 3. DOM Helpers ───── */
+const $  = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 
-const decSubBtn         = document.getElementById('decSubtitulo');
-const incSubBtn         = document.getElementById('incSubtitulo');
-const displaySubSize    = document.getElementById('displaySubtituloSize');
-const hiddenSubSize     = document.getElementById('tamanhoSubtitulo');
+/* ───── 4. Elementos ───── */
+const selectFesta      = $("#selectFesta");
+const eventoInfoDiv    = $("#evento-info");
+const thumbnailsWrapper   = $(".thumbnails-wrapper");
+const thumbnailsContainer = $("#thumbnails");
+const thumbPrevBtn        = $("#thumbPrev");
+const thumbNextBtn        = $("#thumbNext");
 
-const fonteTituloSel    = document.getElementById('fonteTitulo');
-const fonteSubtituloSel = document.getElementById('fonteSubtitulo');
+const eventoInput       = $("#evento");
+const subtituloInput    = $("#subtitulo");
+const dataInput         = $("#data");
+const horaInput         = $("#hora");
+const localInput        = $("#local");
+const enderecoInput     = $("#endereco");
+const mensagemInput     = $("#mensagem");
 
-const colorPicker       = document.getElementById('colorPicker');
-const corTextoHidden    = document.getElementById('corTexto');
+const decTituloBtn      = $("#decTitulo");
+const incTituloBtn      = $("#incTitulo");
+const displayTituloSize = $("#displayTituloSize");
+const hiddenTituloSize  = $("#tamanhoTitulo");
 
-const downloadBtn       = document.getElementById('downloadBtn');
-const convitePreview    = document.getElementById('convitePreview');
-const blurBg            = document.getElementById('blurBg');
-const panel             = document.getElementById('panel');
+const decSubBtn         = $("#decSubtitulo");
+const incSubBtn         = $("#incSubtitulo");
+const displaySubSize    = $("#displaySubtituloSize");
+const hiddenSubSize     = $("#tamanhoSubtitulo");
 
-const eventoInfoDiv     = document.getElementById('evento-info');
+const fonteTituloSel    = $("#fonteTitulo");
+const fonteSubtituloSel = $("#fonteSubtitulo");
 
-// Container para mostrar convites gerados
-const invitesListDiv    = document.getElementById('invites-list');
+const colorPicker       = $("#colorPicker");
+const corTextoHidden    = $("#corTexto");
 
-// Lê festaId da URL (?festaId=...)
-const urlParams = new URLSearchParams(window.location.search);
-const festaId   = urlParams.get('festaId') || null;
+const downloadBtn       = $("#downloadBtn");
+const convitePreview    = $("#convitePreview");
+const blurBg            = $("#blurBg");
+const panel             = $("#panel");
+const invitesListDiv    = $("#invites-list");
 
-// Variáveis Firebase (setadas após init)
-let storage, database;
+const modal             = $("#inviteModal");
+const modalImg          = $("#modalImg");
+const modalClose        = $("#modalClose");
+const modalDeleteBtn    = $("#modalDelete");
 
-/* ───────────────────────────────────────────────────────────────────────── *
-   █ Inicialização geral após DOMContentLoaded █
- * ───────────────────────────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-  // 1) Verifica se há festaId válido
-  if (!festaId) {
-    showToast("ID da festa ausente na URL. Volte ao checklist e clique em 'Montar Convite'.", { type: "warning" });
+/* ╔══ BOOTSTRAP ══════════════════════════════════════════╗ */
+document.addEventListener("DOMContentLoaded", async () => {
+  // Carrega usuário
+  const { data:{ user } } = await supabase.auth.getUser();
+  if (user) uid = user.id;
+
+  // Carrega lista de festas
+  await loadFestas();
+
+  // Seleção de festa
+  selectFesta.onchange = () => {
+    festaId = selectFesta.value;
+    loadEventoInfo();
+    carregarConvitesStorage();
+  };
+  // Seleciona automaticamente a primeira
+  if (selectFesta.options.length) {
+    festaId = selectFesta.options[0].value;
+    loadEventoInfo();
+    carregarConvitesStorage();
+  }
+
+  // Inicializa editor e preview
+  montarThumbnails();
+  vincularControles();
+  atualizarPreview();
+
+  // Modal
+  modalClose.onclick     = () => modal.classList.add("hidden");
+  modalDeleteBtn.onclick = handleDeleteInvite;
+});
+/* ╚═══════════════════════════════════════════════════════╝ */
+
+/* ───── Funções de Festa ───── */
+async function loadFestas() {
+  const { data, error } = await supabase
+    .from("festas")
+    .select("id,nome,data_evento")
+    .eq("usuario_id", uid)
+    .order("data_evento");
+  if (error) {
+    console.error(error);
     return;
   }
-
-  // 2) Busca dados básicos da festa no Supabase e exibe em #evento-info
-  await carregarInfoFesta();
-
-  // 3) Inicializa Firebase (Storage + Realtime Database)
-  initFirebaseSDK();
-
-  // 4) Monta carrossel de miniaturas
-  setupThumbnails();
-
-  // 5) Configura upload customizado
-  document.getElementById('uploadImagem').addEventListener('change', handleUploadImagem);
-
-  // 6) Configura controles de tamanho de fonte
-  setupFontControls();
-
-  // 7) Popula selects de fontes
-  populateFonts();
-
-  // 8) Configura listeners gerais de input/select/textarea para atualizar preview
-  ['input', 'change'].forEach(evt => {
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-      el.addEventListener(evt, updatePreview);
-    });
+  data.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.id;
+    opt.textContent = `${f.nome} – ${new Date(f.data_evento).toLocaleDateString("pt-BR")}`;
+    selectFesta.appendChild(opt);
   });
-
-  // 9) Controlador de colorPicker
-  colorPicker.addEventListener('input', e => {
-    corTextoHidden.value = e.target.value;
-    updatePreview();
-  });
-
-  // 10) Botão de salvar convite → geração + upload
-  downloadBtn.addEventListener('click', salvarConvite);
-
-  // 11) Exibe convites já gerados para essa festa
-  fetchAndShowGeneratedInvites();
-
-  // 12) Primeira renderização do preview
-  highlightThumbnail();
-  updatePreview();
-});
-
-/* ===================================================================== *
- *  Função: carregarInfoFesta()                                          *
- *  Busca nome e data do evento no Supabase, exibe em #evento-info       *
- * ===================================================================== */
-async function carregarInfoFesta() {
-  try {
-    const { data: festa, error } = await supabase
-      .from('festas')
-      .select('nome, data_evento')
-      .eq('id', festaId)
-      .single();
-    if (error || !festa) {
-      console.error("Erro ao carregar dados da festa:", error);
-      return;
-    }
-    const dataBR = new Date(festa.data_evento).toLocaleDateString('pt-BR');
-    eventoInfoDiv.innerHTML = `
-      <p><strong>${festa.nome}</strong> — ${dataBR}</p>
-    `;
-  } catch (err) {
-    console.error("Erro supabase ao buscar festa:", err);
-  }
 }
 
-/* ===================================================================== *
- *  Função: initFirebaseSDK()                                             *
- *  Inicializa Storage e Realtime Database                               *
- * ===================================================================== */
-function initFirebaseSDK() {
-  // As funções e configs já foram expostas globalmente em convites.html
-  const app    = window.initializeApp(window.firebaseConfig);
-  storage      = window.getStorage(app);
-  database     = window.getDatabase(app);
+async function loadEventoInfo() {
+  const { data: festa } = await supabase
+    .from("festas")
+    .select("nome,data_evento,convidados")
+    .eq("id", festaId)
+    .single();
+  eventoInfoDiv.textContent =
+    `Evento: ${festa.nome} | Data: ${new Date(festa.data_evento).toLocaleDateString("pt-BR")} | Convidados: ${festa.convidados}`;
 }
 
-/* ===================================================================== *
- *  Função: setupThumbnails()                                             *
- *  Prepara e exibe miniaturas do carrossel de temas                      *
- * ===================================================================== */
-function setupThumbnails() {
-  const windowSize = 4;
-  const THUMB_WIDTH = 80;
-  const THUMB_GAP = 8;
+/* ───── Miniaturas ───── */
+const fundos = [
+  "https://i.postimg.cc/fRXmZ8sq/0.jpg","https://i.postimg.cc/HnPqdQ53/1.webp",
+  "https://i.postimg.cc/4dwdvSkd/2.jpg","https://i.postimg.cc/J4CrD8Bq/3.jpg",
+  "https://i.postimg.cc/qMGTN3rJ/4.jpg","https://i.postimg.cc/ry16HrK1/5.jpg",
+  "https://i.postimg.cc/k4ycQqgb/6.jpg","https://i.postimg.cc/fL5c3C87/7.jpg",
+  "https://i.postimg.cc/nrCDXJjZ/8.jpg","https://i.postimg.cc/XvLGxJ94/9.jpg",
+  "https://i.postimg.cc/K8y12LNm/10.jpg","https://i.postimg.cc/NGSbvgzQ/11.jpg",
+  "https://i.postimg.cc/JnBDNWcQ/12.jpg","https://i.postimg.cc/RC7q4dPq/13.jpg",
+  "https://i.postimg.cc/Kj8XXmqP/14.jpg","https://i.postimg.cc/SKFwS61N/15.jpg",
+  "https://i.postimg.cc/X7tPLKbc/16.jpg","https://i.postimg.cc/QNFGqd7D/17.jpg",
+  "https://i.postimg.cc/Y25VffkN/18.jpg"
+];
+const PLACEHOLDER =
+  "data:image/svg+xml;base64,"+
+  "PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8v"+
+  "d3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdo"+
+  "dD0iMTAwJSIgZmlsbD0iI2U2ZThlZiIvPjwvc3ZnPg==";
 
+function miniatura(src) {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.referrerPolicy = "no-referrer";
+  img.src = src;
+  img.onerror = () => img.src = PLACEHOLDER;
+  return img;
+}
+
+function montarThumbnails() {
+  thumbnailsContainer.innerHTML = "";
+  const W = 80, G = 8, win = 4;
   Object.assign(thumbnailsWrapper.style, {
-    overflowX: 'auto',
-    WebkitOverflowScrolling: 'touch',
-    scrollSnapType: 'x mandatory',
-    cursor: 'grab',
-    userSelect: 'none',
-    width: `${windowSize * THUMB_WIDTH + (windowSize - 1) * THUMB_GAP}px`,
-    paddingBottom: '4px'
+    overflowX: "auto",
+    scrollSnapType: "x mandatory",
+    width: `${win*W + (win-1)*G}px`
   });
   Object.assign(thumbnailsContainer.style, {
-    display: 'flex',
-    gap: `${THUMB_GAP}px`
+    display: "flex",
+    gap: `${G}px`
   });
-
-  images.forEach((url, i) => {
-    const img = document.createElement('img');
-    img.src = url;
+  fundos.forEach((url, i) => {
+    const img = miniatura(url);
     img.dataset.index = i;
     Object.assign(img.style, {
-      flex: '0 0 auto',
-      width: `${THUMB_WIDTH}px`,
-      height: `${THUMB_WIDTH}px`,
-      objectFit: 'cover',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      scrollSnapAlign: 'start',
-      border: '2px solid transparent',
-      transition: 'border 0.2s'
+      flex: "0 0 auto",
+      width: `${W}px`,
+      height: `${W}px`,
+      objectFit: "cover",
+      borderRadius: "4px",
+      border: "2px solid transparent",
+      cursor: "pointer",
+      scrollSnapAlign: "start"
     });
-    img.addEventListener('click', () => {
+    img.onclick = () => {
       currentTheme = i;
-      highlightThumbnail();
-      updatePreview();
-    });
+      destacarThumb();
+      atualizarPreview();
+    };
     thumbnailsContainer.appendChild(img);
   });
+  thumbPrevBtn.onclick = () => thumbnailsWrapper.scrollBy({ left: -88, behavior: "smooth" });
+  thumbNextBtn.onclick = () => thumbnailsWrapper.scrollBy({ left:  88, behavior: "smooth" });
+  destacarThumb();
+}
 
-  thumbPrevBtn.addEventListener('click', () => {
-    const thumbStep = THUMB_WIDTH + THUMB_GAP;
-    thumbnailsWrapper.scrollBy({ left: -thumbStep, behavior: 'smooth' });
-  });
-  thumbNextBtn.addEventListener('click', () => {
-    const thumbStep = THUMB_WIDTH + THUMB_GAP;
-    thumbnailsWrapper.scrollBy({ left: thumbStep, behavior: 'smooth' });
+function destacarThumb() {
+  thumbnailsContainer.querySelectorAll("img").forEach(img => {
+    img.style.border = (parseInt(img.dataset.index, 10) === currentTheme)
+      ? "2px solid #f8c102"
+      : "2px solid transparent";
   });
 }
 
-/* ===================================================================== *
- *  Função: highlightThumbnail()                                         *
- *  Destaca miniatura selecionada                                         *
- * ===================================================================== */
-function highlightThumbnail() {
-  const imgs = Array.from(thumbnailsContainer.querySelectorAll('img'));
-  imgs.forEach(img => {
-    const isSelected = parseInt(img.dataset.index, 10) === currentTheme;
-    img.style.border = isSelected ? '2px solid #f8c102' : '2px solid transparent';
+/* ───── Controles ───── */
+function vincularControles() {
+  $("#uploadImagem").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      convitePreview.dataset.upload = ev.target.result;
+      currentTheme = "upload";
+      destacarThumb();
+      atualizarPreview();
+    };
+    r.readAsDataURL(f);
   });
-}
 
-/* ===================================================================== *
- *  Função: handleUploadImagem()                                          *
- *  Lê imagem custom, salva em data-upload do preview, marca currentTheme *
- * ===================================================================== */
-function handleUploadImagem(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    convitePreview.dataset.upload = ev.target.result;
-    currentTheme = "upload";
-    thumbnailsContainer.querySelectorAll('img').forEach(img => {
-      img.style.border = '2px solid transparent';
-    });
-    updatePreview();
+  decTituloBtn.onclick = () => ajustaFonte(hiddenTituloSize, displayTituloSize, -2);
+  incTituloBtn.onclick = () => ajustaFonte(hiddenTituloSize, displayTituloSize, +2);
+  decSubBtn.onclick = () => ajustaFonte(hiddenSubSize, displaySubSize, -2);
+  incSubBtn.onclick = () => ajustaFonte(hiddenSubSize, displaySubSize, +2);
+
+  ["input","change"].forEach(ev => {
+    $$("input,select,textarea").forEach(el => el.addEventListener(ev, atualizarPreview));
+  });
+  colorPicker.oninput = e => {
+    corTextoHidden.value = e.target.value;
+    atualizarPreview();
   };
-  reader.readAsDataURL(file);
-}
 
-/* ===================================================================== *
- *  Função: updatePreview()                                               *
- *  Atualiza preview de acordo com inputs                                  *
- * ===================================================================== */
-function updatePreview() {
-  const src = (currentTheme === "upload")
-    ? convitePreview.dataset.upload
-    : images[currentTheme];
-
-  convitePreview.style.backgroundImage = `url('${src}')`;
-  blurBg.style.backgroundImage = `url('${src}')`;
-
-  // Lê valores de inputs
-  const evento  = eventoInput.value;
-  const subt    = subtituloInput.value;
-  const dataVal = dataInput.value;
-  const horaVal = horaInput.value;
-  const local   = localInput.value;
-  const endereco = enderecoInput.value.replace(/\n/g, '<br>');
-  const msg     = mensagemInput.value.trim();
-  const cor     = corTextoHidden.value;
-  const ft      = fonteTituloSel.value;
-  const fs      = fonteSubtituloSel.value;
-  const szT     = hiddenTituloSize.value + 'px';
-  const szS     = hiddenSubSize.value + 'px';
-
-  // Formata data local
-  const dateStr = dataVal
-    ? new Date(...dataVal.split('-').map((v,i) => i === 1 ? v - 1 : +v))
-        .toLocaleDateString('pt-BR')
-    : '';
-
-  panel.innerHTML = `
-    <div style="letter-spacing:2px;font-size:clamp(0.85rem,2.5vw,1rem);color:${cor}">
-      CONVITE
-    </div>
-    <h2 class="title" style="font-family:${ft};font-size:${szT};color:${cor}">
-      ${evento}
-    </h2>
-    <h3 class="subtitle" style="font-family:${fs};font-size:${szS};color:${cor}">
-      ${subt}
-    </h3>
-    <div class="data-ornamento" style="color:${cor}">${dateStr}</div>
-    <div class="legend" style="color:${cor}">
-      ${dataVal ? `${diaSemana(dataVal)}, ${horaFmt(horaVal)}` : ''}
-    </div>
-    <div class="location" style="color:${cor}">
-      ${local}
-    </div>
-    <div class="address" style="color:${cor}">
-      ${endereco}
-    </div>
-    ${msg
-      ? `<p style="margin-top:0.5rem;color:${cor}">
-           ${msg.startsWith('“') ? msg : `“${msg}”`}
-         </p>`
-      : ''
-    }
-  `;
-}
-
-/* ===================================================================== *
- *  Auxiliar: diaSemana(d)                                                *
- * ===================================================================== */
-const diaSemana = d => {
-  const [y, m, day] = d.split('-');
-  return ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][
-    new Date(y, m - 1, day).getDay()
+  const fontes = [
+    "'Great Vibes',cursive","'Lora',serif","'Playfair Display',serif",
+    "'Dancing Script',cursive","'Pacifico',cursive","'Roboto',sans-serif",
+    "'Quicksand',sans-serif","'Caveat',cursive","'Raleway',sans-serif",
+    "'Courgette',cursive","'Indie Flower',cursive"
   ];
-};
-
-/* ===================================================================== *
- *  Auxiliar: horaFmt(h)                                                  *
- * ===================================================================== */
-const horaFmt = h => {
-  if (!h) return '';
-  const [hh, mm] = h.split(':');
-  return `às ${parseInt(hh, 10)}h${mm !== '00' ? mm : ''}`;
-};
-
-/* ===================================================================== *
- *  Função: setupFontControls()                                            *
- *  Configura botões de diminuir/aumentar fonte                             *
- * ===================================================================== */
-function setupFontControls() {
-  // Título
-  decTituloBtn.addEventListener('click', () => {
-    let size = parseInt(hiddenTituloSize.value, 10);
-    if (size > 12) size -= 2;
-    hiddenTituloSize.value = size;
-    displayTituloSize.textContent = size;
-    updatePreview();
-  });
-  incTituloBtn.addEventListener('click', () => {
-    let size = parseInt(hiddenTituloSize.value, 10);
-    if (size < 100) size += 2;
-    hiddenTituloSize.value = size;
-    displayTituloSize.textContent = size;
-    updatePreview();
-  });
-
-  // Subtítulo
-  decSubBtn.addEventListener('click', () => {
-    let size = parseInt(hiddenSubSize.value, 10);
-    if (size > 12) size -= 2;
-    hiddenSubSize.value = size;
-    displaySubSize.textContent = size;
-    updatePreview();
-  });
-  incSubBtn.addEventListener('click', () => {
-    let size = parseInt(hiddenSubSize.value, 10);
-    if (size < 100) size += 2;
-    hiddenSubSize.value = size;
-    displaySubSize.textContent = size;
-    updatePreview();
-  });
-}
-
-/* ===================================================================== *
- *  Função: populateFonts()                                                *
- *  Popula selects de fontes                                                  *
- * ===================================================================== */
-const fontList = [
-  "'Great Vibes', cursive", "'Lora', serif", "'Playfair Display', serif",
-  "'Dancing Script', cursive", "'Pacifico', cursive", "'Roboto', sans-serif",
-  "'Quicksand', sans-serif", "'Caveat', cursive", "'Raleway', sans-serif",
-  "'Courgette', cursive", "'Indie Flower', cursive"
-];
-function populateFonts() {
-  ['fonteTitulo', 'fonteSubtitulo'].forEach(id => {
-    const sel = document.getElementById(id);
-    fontList.forEach(f => {
-      const opt = document.createElement('option');
+  ["fonteTitulo","fonteSubtitulo"].forEach(id => {
+    const sel = $("#"+id);
+    fontes.forEach(f => {
+      const opt = document.createElement("option");
       opt.value = f;
-      opt.textContent = f.split(',')[0].replace(/'/g, '');
+      opt.textContent = f.split(",")[0].replace(/'/g,"");
       opt.style.fontFamily = f;
       sel.appendChild(opt);
     });
   });
+
+  downloadBtn.onclick = salvarConvite;
 }
 
-/* ===================================================================== *
- *  Função: salvarConvite()                                                *
- *  Gera imagem via html2canvas, faz upload + grava URL no Realtime DB     *
- * ===================================================================== */
+function ajustaFonte(hidden, disp, delta) {
+  let v = parseInt(hidden.value,10)+delta;
+  v = Math.max(12,Math.min(100,v));
+  hidden.value = v;
+  disp.textContent = v;
+  atualizarPreview();
+}
+
+/* ───── Preview ───── */
+const diaSemana = d => {
+  const [y,m,dd] = d.split("-");
+  return ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][new Date(y,m-1,dd).getDay()];
+};
+const horaFmt = h => !h ? "" : (() => {
+  const [hh,mm] = h.split(":");
+  return `às ${+hh}h${mm!=="00"?mm:""}`;
+})();
+const fundoAtual = () =>
+  (currentTheme==="upload")
+    ? convitePreview.dataset.upload
+    : fundos[currentTheme]||PLACEHOLDER;
+
+function atualizarPreview() {
+  const bg = fundoAtual();
+  convitePreview.style.backgroundImage = `url('${bg}')`;
+  blurBg.style.backgroundImage    = `url('${bg}')`;
+
+  const evento  = eventoInput.value.trim();
+  const subt    = subtituloInput.value.trim();
+  const dataVal = dataInput.value;
+  const horaVal = horaInput.value;
+  const local   = localInput.value.trim();
+  const ender   = enderecoInput.value.trim().replace(/\n/g,"<br>");
+  const msg     = mensagemInput.value.trim();
+  const cor     = corTextoHidden.value;
+  const fTit    = fonteTituloSel.value;
+  const fSub    = fonteSubtituloSel.value;
+  const szTit   = `${hiddenTituloSize.value}px`;
+  const szSub   = `${hiddenSubSize.value}px`;
+  const dataStr = dataVal
+    ? new Date(...dataVal.split("-").map((v,i)=>(i===1?v-1:+v))).toLocaleDateString("pt-BR")
+    : "";
+
+  panel.innerHTML = `
+    <div style="letter-spacing:2px;font-size:clamp(.8rem,2.5vw,1rem);color:${cor}">CONVITE</div>
+    <h2 style="font-family:${fTit};font-size:${szTit};color:${cor};margin:0">${evento||"&nbsp;"}</h2>
+    <h3 style="font-family:${fSub};font-size:${szSub};color:${cor};margin:0">${subt||"&nbsp;"}</h3>
+    <div class="data-ornamento" style="color:${cor}">${dataStr}</div>
+    <div class="legend" style="color:${cor}">${dataVal?`${diaSemana(dataVal)}, ${horaFmt(horaVal)}`:""}</div>
+    <div class="location" style="color:${cor}">${local}</div>
+    <div class="address" style="color:${cor}">${ender}</div>
+    ${msg?`<p style="margin-top:.5rem;color:${cor}">${msg.startsWith("“")?msg:`“${msg}”`}</p>`:""}
+  `;
+}
+
+/* ───── Salvar Convite ───── */
+function nomeSeguro(str) {
+  return (str||"convite")
+    .toLowerCase()
+    .replace(/\s+/g,"_")
+    .replace(/[^a-z0-9_-]/g,"")
+    .slice(0,40)||"convite";
+}
+
 async function salvarConvite() {
+  const toast = showToast("Gerando PNG…",{ type:"info",autoClose:false });
   try {
-    const prev       = document.getElementById('convitePreview');
-    const panelRect  = panel.getBoundingClientRect();
-    const previewRect= prev.getBoundingClientRect();
-    const scale      = 3;
+    const scale    = 3;
+    const prevRect = convitePreview.getBoundingClientRect();
+    const pnlRect  = panel.getBoundingClientRect();
 
-    // 1a) Renderiza fundo (sem painel)
-    const bgCanvas = await window.html2canvas(prev, {
-      backgroundColor: null,
-      scale,
-      useCORS: true,
-      ignoreElements: (el) => el.id === 'panel'
+    const bg = await html2canvas(convitePreview,{
+      backgroundColor:null, scale, useCORS:true, allowTaint:true,
+      ignoreElements: el => el.id==="panel"
     });
 
-    // 1b) Prepara blur do painel
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width  = panelRect.width * scale;
-    tmpCanvas.height = panelRect.height * scale;
-    const tctx = tmpCanvas.getContext('2d');
-    tctx.filter = 'blur(20px)';
-    const xOff = (panelRect.left - previewRect.left) * scale;
-    const yOff = (panelRect.top - previewRect.top) * scale;
-    tctx.drawImage(
-      bgCanvas,
-      xOff, yOff,
-      tmpCanvas.width, tmpCanvas.height,
-      0, 0,
-      tmpCanvas.width, tmpCanvas.height
-    );
+    const mask = document.createElement("canvas");
+    mask.width  = pnlRect.width  * scale;
+    mask.height = pnlRect.height * scale;
+    const mctx = mask.getContext("2d");
+    mctx.filter = "blur(20px)";
+    const dx = (pnlRect.left - prevRect.left) * scale;
+    const dy = (pnlRect.top  - prevRect.top ) * scale;
+    mctx.drawImage(bg, dx, dy, mask.width, mask.height, 0, 0, mask.width, mask.height);
 
-    // 1c) Renderiza somente painel (texto + ornamentação)
-    const overlayCanvas = await window.html2canvas(panel, {
-      backgroundColor: null,
-      scale,
-      useCORS: true
-    });
+    const overlay = await html2canvas(panel,{backgroundColor:null, scale, useCORS:true, allowTaint:true});
+    const final = document.createElement("canvas");
+    final.width  = prevRect.width  * scale;
+    final.height = prevRect.height * scale;
+    const ctx = final.getContext("2d");
+    ctx.drawImage(bg,     0,   0);
+    ctx.drawImage(mask,   dx,  dy);
+    ctx.drawImage(overlay,dx,  dy);
 
-    // 1d) Combina no canvas final
-    const finalCanvas = document.createElement('canvas');
-    finalCanvas.width  = previewRect.width * scale;
-    finalCanvas.height = previewRect.height * scale;
-    const ctx = finalCanvas.getContext('2d');
-    ctx.drawImage(bgCanvas, 0, 0);
-    ctx.drawImage(tmpCanvas, xOff, yOff, tmpCanvas.width, tmpCanvas.height);
-    ctx.drawImage(overlayCanvas, xOff, yOff, tmpCanvas.width, tmpCanvas.height);
+    final.toBlob(async blob => {
+      // Download imediato
+      const tmpURL = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = tmpURL;
+      const base = nomeSeguro(eventoInput.value);
+      const ts   = Date.now();
+      a.download = `${base}_${ts}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(tmpURL);
 
-    // 2) Converte para blob e envia ao Firebase Storage
-    finalCanvas.toBlob(async (blob) => {
-      const timestamp = Date.now();
-      const filePath  = `convites/${festaId}/${timestamp}.png`;
-      const storageReference = window.storageRef(storage, filePath);
+      // Upload
+      const path = `convites/${uid}/${festaId}/${base}_${ts}.png`;
+      const ref  = storageRef(fbStorage, path);
+      await uploadBytes(ref, blob);
+      showToast("Upload concluído!", { type:"success" });
 
-      // 2a) Upload
-      await window.uploadBytes(storageReference, blob);
-
-      // 2b) URL pública
-      const downloadURL = await window.getDownloadURL(storageReference);
-
-      // 2c) Grava URL no Realtime Database em convites/{festaId}/
-      const convitesRef  = window.dbRef(database, `convites/${festaId}`);
-      const newInviteRef = window.push(convitesRef);
-      await window.set(newInviteRef, {
-        url: downloadURL,
-        createdAt: timestamp
-      });
-
-      showToast("Convite salvo com sucesso!", { type: "success" });
-    }, 'image/png');
-
-  } catch (err) {
-    console.error("Erro ao gerar/baixar convite:", err);
-    showToast("Falha ao salvar convite.", { type: "error" });
+      // Recarrega lista
+      carregarConvitesStorage();
+    }, "image/png");
+  } catch(err) {
+    console.error(err);
+    showToast("Erro ao salvar convite.", { type:"error" });
+  } finally {
+    if (typeof hideToast === "function") hideToast(toast);
   }
 }
 
-/* ===================================================================== *
- *  Função: fetchAndShowGeneratedInvites()                                 *
- *  Lê convites/{festaId} e exibe miniaturas                               *
- * ===================================================================== */
-function fetchAndShowGeneratedInvites() {
-  const convitesRef = window.dbRef(database, `convites/${festaId}`);
-  window.onValue(convitesRef, (snapshot) => {
-    invitesListDiv.innerHTML = ""; // limpa lista
-    const data = snapshot.val();
-    if (!data) {
-      invitesListDiv.innerHTML = "<p>Nenhum convite gerado ainda.</p>";
+/* ───── Carregar Convites ───── */
+async function carregarConvitesStorage() {
+  invitesListDiv.innerHTML = "Carregando convites…";
+  try {
+    const pasta = storageRef(fbStorage, `convites/${uid}/${festaId}`);
+    const { items } = await listAll(pasta);
+    invitesListDiv.innerHTML = "";
+    if (items.length === 0) {
+      invitesListDiv.textContent = "Nenhum convite ainda.";
       return;
     }
-    // Ordena pelo createdAt para exibir do mais recente ao mais antigo
-    const entries = Object.entries(data).sort((a, b) => b[1].createdAt - a[1].createdAt);
-    entries.forEach(([key, obj]) => {
-      const thumb = document.createElement('div');
-      thumb.className = "invite-thumb";
-      thumb.style.backgroundImage = `url('${obj.url}')`;
-      thumb.addEventListener('click', () => {
-        window.open(obj.url, '_blank');
-      });
-      invitesListDiv.appendChild(thumb);
-    });
-  });
+    await Promise.all(items.map(async itemRef => {
+      const url = await getDownloadURL(itemRef);
+      const wrapper = document.createElement("div");
+      wrapper.className = "invite-thumb-wrapper";
+
+      const card = document.createElement("div");
+      card.className = "invite-thumb";
+      card.style.backgroundImage = `url('${url}')`;
+      card.onclick = () => openModal(url, itemRef.fullPath);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn-delete-thumb";
+      delBtn.innerHTML = `<i class="fa fa-trash"></i>`;
+      delBtn.onclick = e => {
+        e.stopPropagation();
+        openModal(url, itemRef.fullPath);
+      };
+
+      wrapper.appendChild(card);
+      wrapper.appendChild(delBtn);
+      invitesListDiv.appendChild(wrapper);
+    }));
+  } catch(err) {
+    console.error("Erro listar storage:", err);
+    invitesListDiv.textContent = "Erro ao carregar convites.";
+  }
+}
+
+/* ───── Modal ───── */
+function openModal(imageUrl, path) {
+  modalCurrentPath = path;
+  modalImg.src      = imageUrl;
+  modal.classList.remove("hidden");
+}
+
+async function handleDeleteInvite() {
+  try {
+    await deleteObject(storageRef(fbStorage, modalCurrentPath));
+    showToast("Convite excluído!", { type:"success" });
+    modal.classList.add("hidden");
+    carregarConvitesStorage();
+  } catch(err) {
+    console.error(err);
+    showToast("Erro ao excluir convite.", { type:"error" });
+  }
 }
