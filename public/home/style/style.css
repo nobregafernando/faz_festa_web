@@ -13,7 +13,7 @@
 }
 
 body {
-    background-color: #f3f0ea;
+  background:linear-gradient(180deg,#d8b4f6,#fbcfe8) fixed;
 }
 
 section {

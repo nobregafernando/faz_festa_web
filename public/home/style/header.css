@@ -3,7 +3,7 @@ header {
     padding: 28px 8%;
     position: sticky;
     top: 0;
-    background-color: #f5ecd6;
+    background-color: #ffffff;
     z-index: 7;
     
   
@@ -23,7 +23,7 @@ header {
     max-width: 150px; /* Define uma largura máxima para não estourar o layout */
     max-height: 50px; /* Define uma altura máxima */
 
-
+    
 }
 
 #nav_list {
@@ -41,7 +41,7 @@ header {
 }
 
 .nav-item.active a {
-    border-bottom: 3px solid #ff9900;
+    border-bottom: 3px solid #d8b4f6;
     padding-bottom: 4px;
 }
 

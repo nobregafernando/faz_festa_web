@@ -33,7 +33,7 @@ body {
   padding: 0 var(--gutter) var(--nav-height);
 }
 
-/* ===== Loader Overlay (injetado pelo toast.js) ===== */
+/* ===== Loader Overlay (injeta pelo toast.js) ===== */
 #loader-overlay {
   position: fixed;
   inset: 0;
@@ -68,9 +68,9 @@ body {
 .page-title {
   font-size: 1.75rem;
   color: var(--text-dark);
-  text-align: center;      /* centraliza tudo */
-  display: flex;           /* alinha ícone + texto */
-  justify-content: center; /* centraliza o flex container */
+  text-align: center;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
@@ -79,7 +79,7 @@ body {
 /* ===== 2) Conteúdo: Grid de duas colunas ===== */
 .content-grid {
   display: grid;
-  grid-template-columns: 300px 1fr; /* calendário 300px, painel direito expande */
+  grid-template-columns: 300px 1fr;
   gap: 1.5rem;
   align-items: start;
 }
@@ -91,7 +91,7 @@ body {
   }
 }
 
-/* ===== Esquerda: Calendário ===== */
+/* ===== ESQUERDA: Calendário ===== */
 .left-panel {
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@ body {
   box-shadow: var(--shadow);
   padding: 0.5rem;
   font-size: 0.85rem;
-  width: 300px; /* largura fixa */
+  width: 300px;
   height: auto;
 }
 .calendar-header {
@@ -181,7 +181,7 @@ body {
   box-shadow: 0 0 0 2px rgba(159, 122, 234, 0.2);
 }
 
-/* ===== Direita: cabeçalho e detalhes ===== */
+/* ===== DIREITA: Cabeçalho e Detalhes ===== */
 .right-panel {
   display: flex;
   flex-direction: column;
@@ -196,7 +196,7 @@ body {
   box-shadow: var(--shadow);
   font-size: 1rem;
   color: var(--text-dark);
-  text-align: center; /* centraliza todo o conteúdo interno */
+  text-align: center;
 }
 .header-festa p {
   margin: 0;
@@ -205,7 +205,7 @@ body {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  text-align: center; /* título da festa centralizado */
+  text-align: center;
 }
 
 /* ===== 2.2) Painel de detalhes da festa ===== */
@@ -219,7 +219,6 @@ body {
 .festa-info.hidden {
   display: none;
 }
-/* ===== Animação de fadeIn ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -238,7 +237,6 @@ body {
 .festa-info .resumo-tarefas i {
   color: var(--clr-primary);
 }
-.festa-info .resumo-tarefas .texto-resumo {}
 
 /* ===== Grade de informações ===== */
 .festa-info .info-grid {
@@ -281,38 +279,26 @@ body {
   margin: 1.75rem 0;
 }
 
-/* ===== Grid Utilitário ===== */
+/* ===== Grid Utilitário (redução de gap para cards ficarem mais juntos) ===== */
 .grid {
   display: grid;
-  gap: 0.5rem; /* espaçamento reduzido para TODOS os grids (tarefas, calendários etc.) */
+  gap: 0.5rem;
 }
-
-/* ===== Ajustes ESPECÍFICOS para .category-container ===== */
 @media (min-width: 600px) {
   .category-container {
-    /* 1) Grid mais “apertado”: cada coluna terá ao menos 250px de largura 
-       e, se couberem mais, as espalhará uniformemente */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     justify-content: center;
-
-    /* 2) Gap menor entre cards de categoria (ainda mais compacto) */
     gap: 0.5rem;
-
-    /* 3) Margem inferior levemente reduzida */
     margin-bottom: 0.75rem;
   }
-
   .tasks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     justify-content: center;
-
-    /* gap reduzido entre cards de tarefa */
     gap: 0.5rem;
   }
 }
-
 @media (max-width: 599px) {
   .grid {
     grid-template-columns: 1fr;
@@ -322,7 +308,7 @@ body {
 /* ===== Cards de Categoria ===== */
 .category-container {
   margin-top: 0;
-  margin-bottom: 1rem; /* pode ser ajustado se quiser ainda mais próximo da seção abaixo */
+  margin-bottom: 1rem;
 }
 .category-card {
   background: var(--bg-card);
@@ -391,6 +377,26 @@ body {
   color: var(--text-dark);
   margin-bottom: 0.75rem;
   text-align: center;
+}
+
+/* ===== Botão “Montar Convite” ===== */
+#montar-convite-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.btn-montar-convite {
+  background: var(--clr-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.btn-montar-convite:hover {
+  background: var(--clr-secondary);
+  transform: translateY(-2px);
 }
 
 /* ===== Cards de Tarefa ===== */
@@ -492,7 +498,7 @@ body {
   }
 }
 
-/* ===== Barra Inferior (mesmo estilo anterior) ===== */
+/* ===== Barra Inferior ===== */
 #bottom-nav {
   position: fixed;
   bottom: 0;

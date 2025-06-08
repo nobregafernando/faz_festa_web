@@ -5,13 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Checklist – FazFestas</title>
 
-  <!-- Ícones -->
-  <link rel="icon" type="image/x-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
-  <link rel="icon" type="image/png" sizes="192x192" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
-  <link rel="icon" type="image/png" sizes="512x512" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
-  <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
+  <!-- Ícones (podem ficar apontando para o Storage, sem problemas) -->  
+  <link rel="icon" type="image/x-icon"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
+  <link rel="icon" type="image/png" sizes="192x192"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
+  <link rel="icon" type="image/png" sizes="512x512"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
+  <link rel="apple-touch-icon"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
 
   <!-- Fontes / Ícones -->
   <link
@@ -23,27 +29,25 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
 
-  <!-- Nosso CSS de checklist -->
+  <!-- CSS do Checklist (local a este arquivo) -->
   <link rel="stylesheet" href="checklist.css" />
 </head>
 <body>
-  <!-- 1) Apenas deixamos o container de toasts: o próprio toast.js injeta o loader -->
+  <!-- Toast container: o toast.js injeta o overlay/loader -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <main class="app-main">
-    <!-- 2) Título principal centralizado -->
+    <!-- 1) Título principal -->
     <h1 class="page-title">
       <i class="fa-solid fa-clipboard-check"></i>
       Checklist de Festa
     </h1>
 
-    <!-- 3) Conteúdo principal: calendário à esquerda, painel à direita -->
+    <!-- 2) Conteúdo principal: calendário (esq) + painel (dir) -->
     <div class="content-grid">
-      <!-- Coluna da esquerda: Calendário fixo + busca de festa -->
+      <!-- ESQUERDA: calendário + busca de festa -->
       <div class="left-panel">
         <div id="calendar-container" class="calendar-box"></div>
-
-        <!-- Campo de pesquisa de festas -->
         <div class="search-festa-container">
           <input
             type="text"
@@ -56,43 +60,43 @@
         </div>
       </div>
 
-      <!-- Coluna da direita: cabeçalho (mensagem ou título) e detalhes -->
+      <!-- DIREITA: cabeçalho “Selecione uma festa...” e detalhes -->
       <div class="right-panel">
-        <!-- Cabeçalho “Selecione uma festa...” que depois vira o título da festa -->
         <div id="header-festa" class="header-festa">
           <p>Selecione uma festa no calendário ou pesquise acima para visualizar o checklist.</p>
         </div>
-
-        <!-- Painel de detalhes (inicialmente oculto) -->
         <div id="festa-info" class="festa-info hidden"></div>
       </div>
     </div>
 
-    <!-- Linha divisória antes das categorias -->
+    <!-- 3) Linha divisória antes das categorias -->
     <hr class="divider" />
 
-    <!-- Cards de categoria (aparecem somente após selecionar uma festa) -->
+    <!-- 4) Cards de categoria (após selecionar festa) -->
     <section id="category-container" class="grid category-container hidden"></section>
 
-    <!-- Seção de tarefas (abaixo das categorias) -->
+    <!-- 5) Seção de tarefas (aparece ao clicar numa categoria) -->
     <section id="tasks-container" class="tasks-section hidden">
       <button id="btn-back" class="btn-back">
         <i class="fa-solid fa-arrow-left"></i> Voltar às Categorias
       </button>
       <h2 id="tasks-header" class="tasks-header"></h2>
+
+      <!-- Container onde, se for a categoria “Convites”, exibiremos o botão “Montar Convite” -->
+      <div id="montar-convite-container"></div>
+
       <div id="tasks-grid" class="grid tasks-grid"></div>
     </section>
   </main>
 
-  <!-- 4) Toast + Loader (toast.js injeta o loader e desaparece no window.load) -->
+  <!-- 6) Scripts em ordem de carregamento -->
+  <!-- a) Toast + Loader -->
   <script src="../compartilhado/toast.js"></script>
-
-  <!-- 5) Supabase client compartilhado -->
+  <!-- b) Supabase Client (módulo) -->
   <script type="module" src="../compartilhado/supabaseClient.js"></script>
-
-  <!-- 6) Script do Checklist (modificado para catálogo dinâmico de categorias) -->
+  <!-- c) Script do Checklist (módulo) -->
   <script type="module" src="checklist.js"></script>
-
+  <!-- d) Menu superior/inferior e acessibilidade (relativos) -->
   <script type="module" src="../compartilhado/menu-superior.js"></script>
   <script src="../compartilhado/menu-inferior.js"></script>
   <script src="../compartilhado/acessibilidade.js"></script>

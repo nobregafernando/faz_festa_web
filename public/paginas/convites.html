@@ -5,13 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gerador de Convites – FazFestas</title>
 
-       <!-- Ícones -->  
-  <link rel="icon" type="image/x-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
-  <link rel="icon" type="image/png" sizes="192x192" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
-  <link rel="icon" type="image/png" sizes="512x512" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
-  <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
+  <!-- Ícones (apontando para o Storage) -->  
+  <link rel="icon" type="image/x-icon"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon.ico?alt=media&token=5bfefeaf-1ac9-4813-a51c-d8828a8b34df">
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-32x32.png?alt=media&token=662b50ce-0e1b-4987-8a87-0c173852227a">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Ffavicon-16x16.png?alt=media&token=4b01a7d7-66d0-40b5-9aa2-1c0eaa5fcadb">
+  <link rel="icon" type="image/png" sizes="192x192"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-192x192.png?alt=media&token=1ca9ba68-7ad4-47ef-84ec-8ad5b342176c">
+  <link rel="icon" type="image/png" sizes="512x512"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fandroid-chrome-512x512.png?alt=media&token=8d640e97-6f0a-4e5c-b053-9986a288efbf">
+  <link rel="apple-touch-icon"
+        href="https://firebasestorage.googleapis.com/v0/b/fazfestasapp.firebasestorage.app/o/favicon%2Fapple-touch-icon.png?alt=media&token=aac7f4c7-6c42-4265-84e7-54384c846220">
 
   <!-- Fontes / Ícones -->
   <link
@@ -24,17 +30,23 @@
     type="text/css"
   />
 
-  <!-- CSS desta página -->
+  <!-- CSS desta página (mesma pasta “paginas”) -->
   <link rel="stylesheet" href="convites.css" />
 </head>
 <body>
+  <!-- Toast container (mesmo toast.js usado no Checklist) -->
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <main class="app-main">
+    <!-- 1) Título + informação básica do evento -->
     <h1 class="section-title">Gerador de Convites</h1>
+    <div id="evento-info" class="evento-info"></div>
+
+    <!-- 2) Container principal (Editor + Preview) -->
     <div class="container">
-      <!-- EDITOR -->
+      <!-- 2.1) EDITOR -->
       <div class="editor">
+        <!-- Seletor de tema (carrossel de miniaturas) -->
         <label>Imagem de Fundo</label>
         <div class="image-carousel">
           <button id="thumbPrev">&lt;</button>
@@ -44,19 +56,24 @@
           <button id="thumbNext">&gt;</button>
         </div>
 
+        <!-- Upload customizado -->
         <label for="uploadImagem" class="file-btn">Escolher Imagem</label>
         <input type="file" id="uploadImagem" accept="image/*" />
 
-        <label for="evento">Título</label>
+        <!-- Campos de texto do convite -->
+        <label for="evento">Título (Evento)</label>
         <div class="input-with-controls">
           <input type="text" id="evento" placeholder="Casamento / 15 anos" required />
           <div class="font-controls">
-            <button type="button" id="decTitulo" class="font-btn"><i class="fa fa-minus"></i></button>
+            <button type="button" id="decTitulo" class="font-btn">
+              <i class="fa fa-minus"></i>
+            </button>
             <span id="displayTituloSize">36</span>
-            <button type="button" id="incTitulo" class="font-btn"><i class="fa fa-plus"></i></button>
+            <button type="button" id="incTitulo" class="font-btn">
+              <i class="fa fa-plus"></i>
+            </button>
           </div>
         </div>
-        <!-- Campo oculto para armazenar tamanho -->
         <input type="hidden" id="tamanhoTitulo" value="36" />
 
         <label for="fonteTitulo">Fonte do Título</label>
@@ -64,14 +81,17 @@
 
         <label for="subtitulo">Subtítulo</label>
         <div class="input-with-controls">
-          <input type="text" id="subtitulo" placeholder="Emilly – Bruno e Letícia" required />
+          <input type="text" id="subtitulo" placeholder="Ex.: João & Maria" required />
           <div class="font-controls">
-            <button type="button" id="decSubtitulo" class="font-btn"><i class="fa fa-minus"></i></button>
+            <button type="button" id="decSubtitulo" class="font-btn">
+              <i class="fa fa-minus"></i>
+            </button>
             <span id="displaySubtituloSize">42</span>
-            <button type="button" id="incSubtitulo" class="font-btn"><i class="fa fa-plus"></i></button>
+            <button type="button" id="incSubtitulo" class="font-btn">
+              <i class="fa fa-plus"></i>
+            </button>
           </div>
         </div>
-        <!-- Campo oculto para armazenar tamanho -->
         <input type="hidden" id="tamanhoSubtitulo" value="42" />
 
         <label for="fonteSubtitulo">Fonte do Subtítulo</label>
@@ -99,22 +119,79 @@
         <input type="color" id="colorPicker" value="#ffffff" />
         <input type="hidden" id="corTexto" value="#ffffff" />
 
-        <button id="downloadBtn">Baixar Convite</button>
+        <button id="downloadBtn">Salvar Convite</button>
       </div>
 
-      <!-- PREVIEW -->
+      <!-- 2.2) PREVIEW -->
       <div class="preview-box" id="convitePreview">
         <div class="blur-bg" id="blurBg"></div>
         <div class="panel" id="panel"></div>
       </div>
     </div>
+
+    <!-- 3) Lista de Convites Gerados para este evento -->
+    <section id="generated-invites" class="generated-invites">
+      <h2>Convites Gerados para este Evento</h2>
+      <div id="invites-list" class="invites-list"></div>
+    </section>
   </main>
 
-  <!-- Scripts gerais -->
+  <!-- 4) Scripts (que utilizam caminhos relativos, pois estamos em “paginas”) -->
+
+  <!-- a) Supabase Client (relativo a /public/compartilhado) -->
+  <script type="module" src="../compartilhado/supabaseClient.js"></script>
+
+  <!-- b) Firebase SDKs (podem ficar inline para expor objetos globais) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+    import {
+      getDatabase,
+      ref as dbRef,
+      push,
+      onValue,
+      set
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // Expondo globalmente
+    window.initializeApp  = initializeApp;
+    window.getStorage     = getStorage;
+    window.storageRef     = storageRef;
+    window.uploadBytes    = uploadBytes;
+    window.getDownloadURL = getDownloadURL;
+    window.getDatabase    = getDatabase;
+    window.dbRef          = dbRef;
+    window.push           = push;
+    window.onValue        = onValue;
+    window.set            = set;
+
+    // Config Firebase exatamente igual à usada no Checklist
+    window.firebaseConfig = {
+      apiKey:            "AIzaSyBCXGROCEjPw2AKwrkSrvJwoyT0eX5ZiDk",
+      authDomain:        "fazfestasapp.firebaseapp.com",
+      databaseURL:       "https://fazfestasapp-default-rtdb.firebaseio.com",
+      projectId:         "fazfestasapp",
+      storageBucket:     "fazfestasapp.appspot.com",  /* Observe: bucket correto */
+      messagingSenderId: "587597050441",
+      appId:             "1:587597050441:web:95aa6d63f73e3073ca0598",
+      measurementId:     "G-SNG49SH2YB"
+    };
+  </script>
+
+  <!-- c) html2canvas (importa globalment para window.html2canvas) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- d) Script do Gerador de Convites (mesma pasta “paginas”) -->
+  <script type="module" src="convites.js"></script>
+
+  <!-- e) Menu superior/inferior, toast e acessibilidade (relativos) -->
   <script type="module" src="../compartilhado/menu-superior.js"></script>
   <script src="../compartilhado/menu-inferior.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="convites.js"></script>
   <script src="../compartilhado/toast.js"></script>
   <script src="../compartilhado/acessibilidade.js"></script>
 </body>
